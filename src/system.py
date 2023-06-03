@@ -1,7 +1,10 @@
 
-import inquirer
 from dataclasses import dataclass, field
 from typing import Callable
+
+import inquirer
+
+from src.helpers.window import clear
 
 
 @dataclass(slots=True)
@@ -15,14 +18,37 @@ class System:
             '    Commands: \n'
             '\thelp - show this message\n'
             '\tplay - start a new game\n'
-            '\texit - exit the program'
+            '\texit - exit the program\n'
         )
 
-        self.commands['exit'] = lambda: print('Exiting...')
+        self.commands['exit'] = lambda: print('Exiting...\n')
 
-    def execute(self, command: str):
+    def menu(self) -> None:
+        clear()
+
+        command: str = ''
+
+        menu_msg: str = '\n\t ---- Welcome to the Chess game! ---- \n\n'
+
+        print(menu_msg)
+        while command != 'exit':
+            questions = [
+                inquirer.List('menu',
+                        message='Options:',
+                        choices=self.commands.keys(),
+                    ),
+            ]
+            answer = inquirer.prompt(questions)
+
+            if answer is not None:
+                clear()
+                print(menu_msg)
+                command = answer['menu']
+                self.execute(command)
+
+    def execute(self, command: str) -> None:
         if command == '':
-            pass
+            return
         elif command in self.commands:
             self.commands[command]()
         else:
@@ -30,12 +56,12 @@ class System:
 
 
 def play() -> None:
-    print('Playing chess!')
+    print('Playing chess!\n')
     
     questions = [
-    inquirer.List('size',
-                    message='Selectgame mode:',
-                    choices=['Standart', 'Chess960'],
-                ),
+    inquirer.List('game_mode',
+                message='Selectgame mode:',
+                choices=['Standart', 'Chess960'],
+            ),
     ]
     answers = inquirer.prompt(questions)

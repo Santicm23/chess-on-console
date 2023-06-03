@@ -1,20 +1,14 @@
 
-import inquirer
 from src.system import System
+from src.helpers.window import clear
 
 
 def main() -> None:
-    command: str = ''
 
-    print('Play chess on the command line!')
-    while command != 'exit':
+    system = System()
 
-        command = input('--> ')
-
-        system = System()
-
-        system.execute(command)
-
+    system.menu()
+    
 
 if __name__ == '__main__':
     main()
