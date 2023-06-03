@@ -1,4 +1,5 @@
 
+import inquirer
 from src.system import System
 
 

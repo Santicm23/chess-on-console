@@ -1,4 +1,5 @@
 
+import inquirer
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -6,7 +7,7 @@ from typing import Callable
 @dataclass(slots=True)
 class System:
     commands: dict[str, Callable[[], None]] = field(kw_only=True, default_factory=lambda: {
-        'play': commandPlay
+        'play': play
     })
 
     def __post_init__(self):
@@ -28,5 +29,13 @@ class System:
             print(f'Unknown command: {command}')
 
 
-def commandPlay() -> None:
-    ...
+def play() -> None:
+    print('Playing chess!')
+    
+    questions = [
+    inquirer.List('size',
+                    message='Selectgame mode:',
+                    choices=['Standart', 'Chess960'],
+                ),
+    ]
+    answers = inquirer.prompt(questions)
