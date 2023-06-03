@@ -10,8 +10,14 @@ class System:
     })
 
     def __post_init__(self):
-        self.commands['help'] = commandHelp
-        self.commands['exit'] = commandExit
+        self.commands['help'] = lambda: print(
+            '    Commands: \n'
+            '\thelp - show this message\n'
+            '\tplay - start a new game\n'
+            '\texit - exit the program'
+        )
+
+        self.commands['exit'] = lambda: print('Exiting...')
 
     def execute(self, command: str):
         if command == '':
@@ -20,15 +26,7 @@ class System:
             self.commands[command]()
         else:
             print(f'Unknown command: {command}')
-    
-def commandHelp() -> None:
-    print('    Commands:')
-    print('\thelp - show this message')
-    print('\tplay - start a new game')
-    print('\texit - exit the program')
+
 
 def commandPlay() -> None:
     ...
-
-def commandExit() -> None:
-    print('Goodbye!')
