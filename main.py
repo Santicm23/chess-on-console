@@ -1,6 +1,5 @@
 
-from src.system import System
-from src.helpers.window import clear
+from src import System
 
 
 def main() -> None:

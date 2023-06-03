@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, List
 
 import inquirer
 
@@ -10,8 +10,9 @@ from src.helpers.window import clear
 @dataclass(slots=True)
 class System:
     commands: dict[str, Callable[[], None]] = field(kw_only=True, default_factory=lambda: {
-        'play': play
-    })
+            'play': play
+        })
+    menu_questions: List = field(init=False)
 
     def __post_init__(self):
         self.commands['help'] = lambda: print(
@@ -23,6 +24,13 @@ class System:
 
         self.commands['exit'] = lambda: print('Exiting...\n')
 
+        self.menu_questions = [
+                inquirer.List('menu',
+                        message='Options:',
+                        choices=self.commands.keys(),
+                    ),
+            ]
+
     def menu(self) -> None:
         clear()
 
@@ -32,13 +40,8 @@ class System:
 
         print(menu_msg)
         while command != 'exit':
-            questions = [
-                inquirer.List('menu',
-                        message='Options:',
-                        choices=self.commands.keys(),
-                    ),
-            ]
-            answer = inquirer.prompt(questions)
+            
+            answer = inquirer.prompt(self.menu_questions)
 
             if answer is not None:
                 clear()
@@ -59,7 +62,7 @@ def play() -> None:
     print('Playing chess!\n')
     
     questions = [
-    inquirer.List('game_mode',
+        inquirer.List('game_mode',
                 message='Selectgame mode:',
                 choices=['Standart', 'Chess960'],
             ),
