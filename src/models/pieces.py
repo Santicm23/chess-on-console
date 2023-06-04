@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from typing import Self, Type
 from abc import ABC, abstractmethod
 
-from helpers.constants import Color
-from helpers.functions import col_to_int, int_to_col
+from src.helpers.constants import Color
+from src.helpers.functions import col_to_int, int_to_col
 
 
 @dataclass(slots=True)
@@ -13,10 +13,19 @@ class Piece(ABC):
     pos: tuple[str, int]
     legal_moves: list[tuple[int, int]] = field(init=False, default_factory=list)
 
+    @classmethod
+    def from_fen(cls, code: str, pos: tuple[str, int]) -> Self:
+        color = Color.WHITE if code.isupper() else Color.BLACK
+        return {
+            'p': Pawn(color, pos),
+            'n': Knight(color, pos),
+            'b': Bishop(color, pos),
+            'r': Rook(color, pos),
+            'q': Queen(color, pos),
+            'k': King(color, pos)
+        }[code.lower()]
+
     def __str__(self) -> str:
-        return self.__repr__()
-    
-    def __repr__(self) -> str:
         return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
     
     def __eq__(self, other: Self) -> bool:
@@ -69,7 +78,7 @@ class Pawn(Piece):
 @dataclass(slots=True)
 class Knight(Piece):
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
     
     def can_move(self, pos: tuple[str, int]) -> bool:

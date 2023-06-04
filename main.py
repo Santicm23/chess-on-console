@@ -1,5 +1,5 @@
 
-from src import System
+from src.system import System
 
 
 def main() -> None:

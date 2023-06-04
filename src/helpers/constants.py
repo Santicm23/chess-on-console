@@ -1,5 +1,6 @@
 
-from enum import Enum
+from enum import Enum, auto
 
 class Color(Enum):
-    WHITE, BLACK = range(2)
+    WHITE = auto(),
+    BLACK = auto()

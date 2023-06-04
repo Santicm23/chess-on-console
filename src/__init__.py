@@ -2,5 +2,5 @@
     Package: src
 '''
 
-from .system import System
-from .helpers import console
+from src.system import System
+from src.helpers import console

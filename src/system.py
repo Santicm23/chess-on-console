@@ -4,7 +4,8 @@ from typing import Callable, List
 
 import inquirer
 
-from helpers.console import clear
+from src.helpers.console import clear
+from src.models.game import Game
 
 
 @dataclass(slots=True)
@@ -37,16 +38,12 @@ class System:
 
         command: str = ''
 
-        menu_msg: str = '\n\t ---- Welcome to the Chess game! ---- \n\n'
-
-        print(menu_msg)
         while command != 'exit':
             
             answer = inquirer.prompt(self.menu_questions)
 
             if answer is not None:
                 clear()
-                print(menu_msg)
                 command = answer['menu']
                 self.execute(command)
 
@@ -69,3 +66,12 @@ def play() -> None:
             ),
     ]
     answers = inquirer.prompt(questions)
+
+    clear()
+
+    print('Playing chess!\n')
+
+    game = Game()
+
+    print(game)
+    print(repr(game))
