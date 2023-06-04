@@ -3,4 +3,4 @@
 '''
 
 from .system import System
-from .helpers import window
+from .helpers import console

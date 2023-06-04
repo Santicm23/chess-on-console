@@ -4,14 +4,15 @@ from typing import Callable, List
 
 import inquirer
 
-from src.helpers.window import clear
+from helpers.console import clear
 
 
 @dataclass(slots=True)
 class System:
-    commands: dict[str, Callable[[], None]] = field(kw_only=True, default_factory=lambda: {
+    commands: dict[str, Callable[[], None]] = field(kw_only = True, default_factory = lambda: {
             'play': play
         })
+    
     menu_questions: List = field(init=False)
 
     def __post_init__(self):
@@ -63,7 +64,7 @@ def play() -> None:
     
     questions = [
         inquirer.List('game_mode',
-                message='Selectgame mode:',
+                message='Select game mode:',
                 choices=['Standart', 'Chess960'],
             ),
     ]
