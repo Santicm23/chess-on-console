@@ -4,8 +4,8 @@ from typing import Callable, List
 
 import inquirer
 
-from src.helpers.console import clear
-from src.models.game import Game
+from .helpers.console import clear
+from .models.game import Game
 
 
 @dataclass(slots=True)
@@ -62,7 +62,7 @@ def play() -> None:
     questions = [
         inquirer.List('game_mode',
                 message='Select game mode:',
-                choices=['Standart', 'Chess960'],
+                choices=['Standard', 'Chess960'],
             ),
     ]
     answers = inquirer.prompt(questions)
@@ -70,8 +70,3 @@ def play() -> None:
     clear()
 
     print('Playing chess!\n')
-
-    game = Game()
-
-    print(game)
-    print(repr(game))

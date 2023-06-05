@@ -1,12 +1,14 @@
 
 from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+from typing import Self
 
-from src.models.board import Board
-from src.models.pieces import Piece
+from .board import Board
+from .pieces import Piece
 
 
 @dataclass(slots=True)
-class Game:
+class Game(ABC):
     start_fen: str = field(default = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     board: Board = field(init = False)
     turn: str = field(init = False)
@@ -36,14 +38,15 @@ class Game:
     def __delitem__(self, pos: tuple[str, int]):
         del self.board[pos]
 
-    def update_check(self):...
+    def move_is_legal(self, pos: tuple[str, int], piece: Piece):...
 
-    def move_is_legal(self, pos, piece):...
-
-    def update_piece_lm(self, piece):...
+    def update_piece_lm(self, piece: Piece):...
 
     def update_legal_moves(self):...
 
-    def update_right_castle(self, piece):...
+    def update_right_castle(self, piece: Piece):...
 
-    def update_en_passant(self, pos, piece):...
+    def update_en_passant(self, pos: tuple[str, int], piece: Piece):...
+
+    @abstractmethod
+    def play(self) -> None:...

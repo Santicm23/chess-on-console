@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import List, Optional
 from itertools import groupby
 
-from src.models.pieces import Piece
+from .pieces import Piece
 from src.helpers.functions import col_to_int, int_to_col
 
 
