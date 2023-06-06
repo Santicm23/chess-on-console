@@ -80,3 +80,13 @@ class Board:
     
     def __contains__(self, piece: Piece) -> bool:
         return piece in self.pieces[Color.WHITE] or piece in self.pieces[Color.BLACK]
+
+    def __len__(self) -> int:
+        return sum(len(pieces) for pieces in self.pieces.values())
+
+    def undo(self) -> None:
+        pass
+
+    def redo(self) -> None:
+        pass
+

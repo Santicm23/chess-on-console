@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from typing import Optional, Type, Generator
 
 from .board import Board
 from .piece import Piece
@@ -40,5 +40,20 @@ class Game(ABC):
     def __delitem__(self, pos: Position) -> None:
         del self.board[pos]
 
+    def __contains__(self, piece: Piece) -> bool:
+        return piece in self.board
+    
+    def __iter__(self) -> Generator[Optional[Piece], None, None]:
+        return iter(self.board)
+    
+    def __len__(self) -> int:
+        return len(self.board)
+    
+    def undo(self) -> None:
+        self.board.undo()
+    
+    def redo(self) -> None:
+        self.board.redo()
+
     @abstractmethod
-    def play(self) -> None:...
+    def move(self, move: str) -> None:...

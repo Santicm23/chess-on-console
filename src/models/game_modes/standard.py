@@ -21,13 +21,5 @@ class StandardGame(Game):
         self.halfmove_clock = int(halfmove_clock)
         self.fullmove_number = int(fullmove_number)
     
-    def play(self) -> None:
-        game_over = False
-
-        while not game_over:
-            clear_playing('Standard Chess')
-
-            print(self)
-            print(repr(self))
-
-            game_over = True
+    def move(self, move: str) -> None:
+        return super().move(move)

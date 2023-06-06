@@ -23,9 +23,6 @@ class Piece(ABC):
     def __str__(self) -> str:
         return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
     
-    def __eq__(self, other: Piece) -> bool:
-        return str(self) == str(other)
-    
     def is_legal(self, pos: Position) -> bool:
         return pos in self.legal_moves
     
