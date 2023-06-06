@@ -6,6 +6,7 @@ from typing import Optional, Type
 from .board import Board
 from .piece import Piece
 from .pieces.standard import King
+from ..helpers.constants import Position
 
 
 @dataclass(slots=True)
@@ -30,13 +31,13 @@ class Game(ABC):
     def __repr__(self) -> str:
         return f'{repr(self.board)} {self.turn} {self.castling} {self.en_passant} {self.halfmove_clock} {self.fullmove_number}'
 
-    def __getitem__(self, pos: tuple[str, int]) -> Optional[Piece]:
+    def __getitem__(self, pos: Position) -> Optional[Piece]:
         return self.board[pos]
 
-    def __setitem__(self, pos: tuple[str, int], piece: Piece) -> None:
+    def __setitem__(self, pos: Position, piece: Piece) -> None:
         self.board[pos] = piece
 
-    def __delitem__(self, pos: tuple[str, int]) -> None:
+    def __delitem__(self, pos: Position) -> None:
         del self.board[pos]
 
     @abstractmethod

@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Type
 
 from ..piece import Piece, Board
-from ...helpers.constants import Color
+from ...helpers.constants import Color, Position
 from ...helpers.functions import col_to_int, int_to_col
 
 
@@ -11,7 +11,7 @@ from ...helpers.functions import col_to_int, int_to_col
 class Pawn(Piece):
     '''Pawn piece.'''
     
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -49,7 +49,7 @@ class Knight(Piece):
     def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
     
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -66,7 +66,7 @@ class Knight(Piece):
 class Bishop(Piece):
     '''Bishop piece.'''
 
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -84,7 +84,7 @@ class Rook(Piece):
 
     has_moved: bool = field(init=False, default=False)
 
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -92,7 +92,7 @@ class Rook(Piece):
             return True
         return False
 
-    def move(self, pos: tuple[str, int]) -> None:
+    def move(self, pos: Position) -> None:
         super().move(pos)
         self.has_moved = True
 
@@ -101,7 +101,7 @@ class Rook(Piece):
 class Queen(Piece):
     '''Queen piece.'''
 
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -120,7 +120,7 @@ class King(Piece):
     has_moved: bool = field(init=False, default=False)
     check: bool = field(init=False, default=False)
 
-    def can_move(self, board: Board, pos: tuple[str, int]) -> bool:
+    def can_move(self, board: Board, pos: Position) -> bool:
         x, y = self.pos
         new_x, new_y = pos
 
@@ -145,13 +145,13 @@ class King(Piece):
         rook_x = col_to_int(rook_x)
 
         if rook_x < x:
-            self.move((int_to_col(x - 2), y))
-            rook.move((int_to_col(x - 1), y))
+            self.move(self.pos - (2, 0))
+            rook.move(self.pos - (1, 0))
         else:
-            self.move((int_to_col(x + 2), y))
-            rook.move((int_to_col(x + 1), y))
+            self.move(self.pos + (2, 0))
+            rook.move(self.pos + (1, 0))
     
-    def move(self, pos: tuple[str, int]) -> None:
+    def move(self, pos: Position) -> None:
         super().move(pos)
         self.has_moved = True
 

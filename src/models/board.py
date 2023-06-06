@@ -4,7 +4,7 @@ from typing import List, Optional, Generator, Type, Self
 from itertools import groupby
 
 from ..helpers.functions import col_to_int, int_to_col
-from ..helpers.constants import Color
+from ..helpers.constants import Color, Position
 from .piece import Piece
 
 
@@ -35,7 +35,7 @@ class Board:
 
                 color = Color.WHITE if char.isupper() else Color.BLACK
 
-                piece = pieces_from_fen[char.lower()](color, (int_to_col(col), 8 - self.matrix.index(row)))
+                piece = pieces_from_fen[char.lower()](color, Position(int_to_col(col), 8 - self.matrix.index(row)))
                 
                 row[col] = piece
 
@@ -61,15 +61,15 @@ class Board:
             for row in self.matrix
         )
 
-    def __getitem__(self, pos: tuple[str, int]) -> Optional[Piece]:
+    def __getitem__(self, pos: Position) -> Optional[Piece]:
         col, row = pos
         return self.matrix[row - 1][col_to_int(col)]
 
-    def __setitem__(self, pos: tuple[str, int], piece: Piece) -> None:
+    def __setitem__(self, pos: Position, piece: Piece) -> None:
         col, row = pos
         self.matrix[row - 1][col_to_int(col)] = piece
 
-    def __delitem__(self, pos: tuple[str, int]) -> None:
+    def __delitem__(self, pos: Position) -> None:
         col, row = pos
         self.matrix[row - 1][col_to_int(col)] = None
 
