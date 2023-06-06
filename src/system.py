@@ -4,12 +4,16 @@ from typing import Callable, List
 
 import inquirer
 
-from .helpers.console import clear
+from .helpers.console import clear, clear_playing
 from .models.game import Game
+from .models.game_modes.standard import StandardGame
+from .models.game_modes.chess960 import Chess960Game
 
 
 @dataclass(slots=True)
 class System:
+    '''System class for the program.'''
+
     commands: dict[str, Callable[[], None]] = field(kw_only = True, default_factory = lambda: {
             'play': play
         })
@@ -42,31 +46,40 @@ class System:
             
             answer = inquirer.prompt(self.menu_questions)
 
-            if answer is not None:
-                clear()
-                command = answer['menu']
-                self.execute(command)
+            assert answer is not None
+            
+            clear()
+            command = answer['menu']
+            self.execute(command)
 
     def execute(self, command: str) -> None:
-        if command == '':
-            return
-        elif command in self.commands:
-            self.commands[command]()
-        else:
-            print(f'Unknown command: {command}')
+        assert command in self.commands
+        
+        self.commands[command]()
 
 
 def play() -> None:
-    print('Playing chess!\n')
+    clear_playing()
     
     questions = [
         inquirer.List('game_mode',
-                message='Select game mode:',
-                choices=['Standard', 'Chess960'],
+                message = 'Select game mode:',
+                choices = ['Standard Chess', 'Chess960'],
             ),
     ]
-    answers = inquirer.prompt(questions)
+    answer = inquirer.prompt(questions)
 
-    clear()
+    assert answer is not None
 
-    print('Playing chess!\n')
+    clear_playing(answer['game_mode'])
+
+    game: Game
+    
+    if answer['game_mode'] == 'Standard Chess':
+        game = StandardGame()
+    elif answer['game_mode'] == 'Chess960':
+        game = Chess960Game()
+    else:
+        raise Exception('Unknown game mode')
+    
+    game.play()

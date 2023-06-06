@@ -3,12 +3,14 @@ from dataclasses import dataclass, field
 from typing import Self, Type
 from abc import ABC, abstractmethod
 
-from src.helpers.constants import Color
-from src.helpers.functions import col_to_int, int_to_col
+from ..helpers.constants import Color
+from ..helpers.functions import col_to_int, int_to_col
 
 
 @dataclass(slots=True)
 class Piece(ABC):
+    '''Abstract class for all pieces.'''
+
     color: Color
     pos: tuple[str, int]
     legal_moves: list[tuple[int, int]] = field(init=False, default_factory=list)
@@ -43,6 +45,7 @@ class Piece(ABC):
 
 @dataclass(slots=True)
 class Pawn(Piece):
+    '''Pawn piece.'''
     
     def can_move(self, pos: tuple[str, int]) -> bool:
         x, y = self.pos
@@ -77,6 +80,7 @@ class Pawn(Piece):
 
 @dataclass(slots=True)
 class Knight(Piece):
+    '''Knight piece.'''
 
     def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
@@ -96,6 +100,7 @@ class Knight(Piece):
 
 @dataclass(slots=True)
 class Bishop(Piece):
+    '''Bishop piece.'''
 
     def can_move(self, pos: tuple[str, int]) -> bool:
         x, y = self.pos
@@ -111,6 +116,8 @@ class Bishop(Piece):
 
 @dataclass(slots=True)
 class Rook(Piece):
+    '''Rook piece.'''
+
     has_moved: bool = field(init=False, default=False)
 
     def can_move(self, pos: tuple[int, int]) -> bool:
@@ -128,6 +135,7 @@ class Rook(Piece):
 
 @dataclass(slots=True)
 class Queen(Piece):
+    '''Queen piece.'''
 
     def can_move(self, pos: tuple[str, int]) -> bool:
         x, y = self.pos
@@ -143,6 +151,8 @@ class Queen(Piece):
 
 @dataclass(slots=True)
 class King(Piece):
+    '''King piece.'''
+
     has_moved: bool = field(init=False, default=False)
     check: bool = field(init=False, default=False)
 

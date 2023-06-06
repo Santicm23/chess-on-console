@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from typing import Self
+from typing import Optional
 
 from .board import Board
 from .pieces import Piece
@@ -9,6 +9,8 @@ from .pieces import Piece
 
 @dataclass(slots=True)
 class Game(ABC):
+    '''Abstract class for all games.'''
+
     start_fen: str = field(default = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
     board: Board = field(init = False)
     turn: str = field(init = False)
@@ -23,19 +25,19 @@ class Game(ABC):
         self.halfmove_clock = int(halfmove_clock)
         self.fullmove_number = int(fullmove_number)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.board)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{repr(self.board)} {self.turn} {self.castling} {self.en_passant} {self.halfmove_clock} {self.fullmove_number}'
 
-    def __getitem__(self, pos: tuple[str, int]):
+    def __getitem__(self, pos: tuple[str, int]) -> Optional[Piece]:
         return self.board[pos]
 
-    def __setitem__(self, pos: tuple[str, int], piece: Piece):
+    def __setitem__(self, pos: tuple[str, int], piece: Piece) -> None:
         self.board[pos] = piece
 
-    def __delitem__(self, pos: tuple[str, int]):
+    def __delitem__(self, pos: tuple[str, int]) -> None:
         del self.board[pos]
 
     def move_is_legal(self, pos: tuple[str, int], piece: Piece):...
@@ -44,9 +46,19 @@ class Game(ABC):
 
     def update_legal_moves(self):...
 
-    def update_right_castle(self, piece: Piece):...
+    def update_right_castle(self, piece: Piece):
+        # if piece.color == 'w':
+        #     self.castling = self.castling.replace('K', '')
+        # else:
+        #     self.castling = self.castling.replace('k', '')
+        ...
 
-    def update_en_passant(self, pos: tuple[str, int], piece: Piece):...
+    def update_en_passant(self, pos: tuple[str, int], piece: Piece):
+        # if piece.color == 'w':
+        #     self.en_passant = col_to_int(pos[0]) + 1
+        # else:
+        #     self.en_passant = col_to_int(pos[0]) - 1
+        ...
 
     @abstractmethod
     def play(self) -> None:...

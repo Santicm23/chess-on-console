@@ -1,8 +1,10 @@
 
-from src.models.game import Game
+from ..game import Game
 
 
 class Chess960Game(Game):
+    '''Chess960 game.'''
     
     def play(self) -> None:
-        return super().play()
+        print(self)
+        print(repr(self))
