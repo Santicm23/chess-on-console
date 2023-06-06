@@ -2,70 +2,48 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Generator, Type, Self
 from itertools import groupby
-from abc import ABC, abstractmethod
 
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color
-
-
-@dataclass(slots=True)
-class Piece(ABC):
-    '''Abstract class for all pieces.'''
-
-    color: Color
-    pos: tuple[str, int]
-    legal_moves: list[tuple[int, int]] = field(init=False, default_factory=list)
-
-    def __str__(self) -> str:
-        return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
-    
-    def __eq__(self, other: Self) -> bool:
-        return str(self) == str(other)
-    
-    def is_legal(self, pos: tuple[str, int]) -> bool:
-        return pos in self.legal_moves
-    
-    def move(self, pos: tuple[str, int]) -> None:
-        self.pos = pos
-    
-    @abstractmethod
-    def can_move(self, pos: tuple[str, int]) -> bool:...
+from .piece import Piece
 
 
 @dataclass(slots=True)
 class Board:
-    '''Chess board.'''
+    '''Chess board'''
 
-    matrix: List[List[Optional[Piece]]]
-    pieces: dict[Color, List[Piece]] = field(default_factory = lambda: {
-        Color.WHITE: [],
-        Color.BLACK: []
+    matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
+    pieces: dict[Color, List[Piece]] = field(init = False, default_factory = lambda: {
+        Color.WHITE: [], Color.BLACK: []
     })
-
-    def __init__(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]):
-        self.matrix = [[None for _ in range(8)] for _ in range(8)]
-        self.load_fen(fen, pieces_from_fen)
+    
+    @classmethod
+    def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
+        board = cls()
+        board.load_fen(fen, pieces_from_fen)
+        return board
     
     def load_fen(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> None:
         fen_list = fen.split('/')
         for row, fen_row in zip(self.matrix, fen_list):
             col = 0
+
             for char in fen_row:
                 if char.isdigit():
                     col += int(char)
-                else:
-                    if char.isupper():
-                        piece = pieces_from_fen[char.lower()](Color.WHITE, (int_to_col(col), 8 - self.matrix.index(row)))
-                    else:
-                        piece = pieces_from_fen[char.lower()](Color.BLACK, (int_to_col(col), 8 - self.matrix.index(row)))
-                    
-                    row[col] = piece
+                    continue
 
-                    index = 0 if isinstance(piece, pieces_from_fen['k']) else -1
+                color = Color.WHITE if char.isupper() else Color.BLACK
 
-                    self.pieces[piece.color].insert(index, piece)
-                    
-                    col += 1
+                piece = pieces_from_fen[char.lower()](color, (int_to_col(col), 8 - self.matrix.index(row)))
+                
+                row[col] = piece
+
+                index = 0 if isinstance(piece, pieces_from_fen['k']) else -1
+
+                self.pieces[piece.color].insert(index, piece)
+                
+                col += 1
 
     def __str__(self) -> str:
         border: str = '+---+---+---+---+---+---+---+---+\n'
