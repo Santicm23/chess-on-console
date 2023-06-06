@@ -1,18 +1,21 @@
 
-from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Self, Literal
 
 from ..helpers.functions import col_to_int, int_to_col
 
-
 class Color(Enum):
     WHITE = auto(),
     BLACK = auto()
 
 
+@dataclass
 class Position(tuple[str, int]):
+    '''Position on the board'''
+
+    row: int
+    col: str
 
     def __new__(cls, col: str, row: int) -> Self:
         return super().__new__(cls, (row, col))
@@ -38,3 +41,7 @@ class Position(tuple[str, int]):
     
     def __ne__(self, other: Self) -> bool:
         return not self == other
+    
+    def diff(self, other: Self) -> tuple[int, int]:
+        return (col_to_int(self.col) - col_to_int(other.col), self.row - other.row)
+    
