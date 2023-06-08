@@ -18,11 +18,11 @@ class Position(tuple[str, int]):
     row: int
 
     def __new__(cls, col: str, row: int) -> Self:
-        return super().__new__(cls, (row, col))
+        return super().__new__(cls, (col, row))
 
     def __init__(self, col: str, row: int) -> None:
-        self.row: int = row
         self.col: str = col
+        self.row: int = row
 
     def __str__(self) -> str:
         return f'{self.col}{self.row}'

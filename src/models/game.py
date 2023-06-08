@@ -70,53 +70,37 @@ class Game(ABC):
         pos: Position
         captured_piece: Optional[Piece] = None
         promotion_piece: Optional[Type[Piece]] = None
-        
-        if self.turn == 'w':
-            color = Color.WHITE
-        else:
-            color = Color.BLACK
+
+        color = Color.WHITE if self.turn == 'w' else Color.BLACK
         
         if move[0] == 'O':
             piece = self.board.pieces[color][0]
             col: str = 'g' if move == 'O-O' else 'c'
-            row: int = 1 if color == Color.WHITE else 8
+            row: int = 1 if self.turn == 'w' else 8
             pos = Position(col, row)
         
         else:
-            pos_index: int
             if '=' in move:
                 if move[0] in 'NBRQK':
                     raise ValueError('Invalid move')
                 
-                promotion_piece = self.pieces_from_fen[move[-1]]
+                promotion_piece = self.pieces_from_fen[move[-1].lower()]
 
                 pos = Position(move[-4], int(move[-3]))
-
-                pos_index = len(move) - 4
             
             else:
                 pos = Position(move[-2], int(move[-1]))
-                pos_index = len(move) - 2
 
             captured_piece = self[str(pos)]
-
             
             if 'x' in move and captured_piece is None:
                 raise ValueError('Invalid move')
             
-            condicions: Callable[[str], bool]
-
-            if move[pos_index - 2] in 'abcdefgh' and move[pos_index - 1] in '12345678':
-                condicions = lambda sqr: sqr[0] == move[pos_index - 2] and sqr[1] == move[pos_index - 1]
-            elif move[pos_index - 1] in 'abcdefgh':
-                condicions = lambda sqr: sqr[0] == move[pos_index - 1]
-            elif move[pos_index - 1] in '12345678':
-                condicions = lambda sqr: sqr[1] == move[pos_index - 1]
-            else:
-                condicions = lambda sqr: True
+            if move[0] not in 'NBRQK':
+                move = 'P' + move
             
             for p in self:
-                if p is not None and p.color == color and str(p).upper() == move[0] and condicions(str(p.pos)):
+                if p is not None and p.color == color and str(p).upper() == move[0]:
                     piece = p
                     break
         

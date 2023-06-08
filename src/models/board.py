@@ -25,25 +25,29 @@ class Board:
     
     def load_fen(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> None:
         fen_list = fen.split('/')
+        
+        i_row = 8
         for row, fen_row in zip(self.matrix, fen_list):
-            col = 0
+            i_col = 0
 
             for char in fen_row:
                 if char.isdigit():
-                    col += int(char)
+                    i_col += int(char)
                     continue
 
                 color = Color.WHITE if char.isupper() else Color.BLACK
 
-                piece = pieces_from_fen[char.lower()](color, Position(int_to_col(col), 8 - self.matrix.index(row)))
+                piece = pieces_from_fen[char.lower()](color, Position(int_to_col(i_col), i_row))
                 
-                row[col] = piece
+                row[i_col] = piece
 
                 index = 0 if isinstance(piece, pieces_from_fen['k']) else -1
 
                 self.pieces[piece.color].insert(index, piece)
                 
-                col += 1
+                i_col += 1
+            
+            i_row -= 1
 
     def __str__(self) -> str:
         border: str = '  +---+---+---+---+---+---+---+---+\n'
@@ -65,17 +69,17 @@ class Board:
     def __getitem__(self, pos: str) -> Optional[Piece]:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        return self.matrix[row - 1][col_to_int(col)]
+        return self.matrix[7 - (row - 1)][col_to_int(col)]
 
     def __setitem__(self, pos: str, piece: Piece) -> None:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        self.matrix[row - 1][col_to_int(col)] = piece
+        self.matrix[7 - (row - 1)][col_to_int(col)] = piece
 
     def __delitem__(self, pos: str) -> None:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        self.matrix[row - 1][col_to_int(col)] = None
+        self.matrix[7 - (row - 1)][col_to_int(col)] = None
 
     def __iter__(self) -> Generator[Optional[Piece], None, None]:
         for row in self.matrix:

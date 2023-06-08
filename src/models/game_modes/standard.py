@@ -2,6 +2,7 @@
 from ..game import Game
 from ...models.board import Board
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
+from ...helpers.console import get_text_input
 
 
 class StandardGame(Game):
@@ -25,4 +26,5 @@ class StandardGame(Game):
         move_data = self.parse_move(move)
         print(move_data)
         self.change_turn()
+        get_text_input('Press enter to continue...')
 
