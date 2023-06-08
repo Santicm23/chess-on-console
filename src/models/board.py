@@ -69,17 +69,17 @@ class Board:
     def __getitem__(self, pos: str) -> Optional[Piece]:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        return self.matrix[7 - (row - 1)][col_to_int(col)]
+        return self.matrix[8 - row][col_to_int(col)]
 
     def __setitem__(self, pos: str, piece: Piece) -> None:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        self.matrix[7 - (row - 1)][col_to_int(col)] = piece
+        self.matrix[8 - row][col_to_int(col)] = piece
 
     def __delitem__(self, pos: str) -> None:
         position = Position(pos[0], int(pos[1]))
         col, row = position
-        self.matrix[7 - (row - 1)][col_to_int(col)] = None
+        self.matrix[8 - row][col_to_int(col)] = None
 
     def __iter__(self) -> Generator[Optional[Piece], None, None]:
         for row in self.matrix:
