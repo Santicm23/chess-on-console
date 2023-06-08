@@ -31,3 +31,4 @@ class Piece(ABC):
     
     @abstractmethod
     def can_move(self, board: Board, pos: Position) -> bool:...
+

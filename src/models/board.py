@@ -46,11 +46,12 @@ class Board:
                 col += 1
 
     def __str__(self) -> str:
-        border: str = '+---+---+---+---+---+---+---+---+\n'
+        border: str = '  +---+---+---+---+---+---+---+---+\n'
+        rank_labels: str = '    a   b   c   d   e   f   g   h\n'
         return border + border.join(
-                '| ' + ' | '.join(str(piece) if piece is not None else ' ' for piece in row) + ' |\n'
-                for row in self.matrix
-            ) + border
+                f'{8 - i} | ' + ' | '.join(str(piece) if piece is not None else ' ' for piece in row) + ' |\n'
+                for i, row in enumerate(self.matrix)
+            ) + border + rank_labels
 
     def __repr__(self) -> str:
         return '/'.join(
@@ -61,16 +62,19 @@ class Board:
             for row in self.matrix
         )
 
-    def __getitem__(self, pos: Position) -> Optional[Piece]:
-        col, row = pos
+    def __getitem__(self, pos: str) -> Optional[Piece]:
+        position = Position(pos[0], int(pos[1]))
+        col, row = position
         return self.matrix[row - 1][col_to_int(col)]
 
-    def __setitem__(self, pos: Position, piece: Piece) -> None:
-        col, row = pos
+    def __setitem__(self, pos: str, piece: Piece) -> None:
+        position = Position(pos[0], int(pos[1]))
+        col, row = position
         self.matrix[row - 1][col_to_int(col)] = piece
 
-    def __delitem__(self, pos: Position) -> None:
-        col, row = pos
+    def __delitem__(self, pos: str) -> None:
+        position = Position(pos[0], int(pos[1]))
+        col, row = position
         self.matrix[row - 1][col_to_int(col)] = None
 
     def __iter__(self) -> Generator[Optional[Piece], None, None]:

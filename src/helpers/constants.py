@@ -14,8 +14,8 @@ class Color(Enum):
 class Position(tuple[str, int]):
     '''Position on the board'''
 
-    row: int
     col: str
+    row: int
 
     def __new__(cls, col: str, row: int) -> Self:
         return super().__new__(cls, (row, col))

@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, Optional
 
 from .helpers.console import clear, clear_playing, get_text_input, get_list_input
 from .models.game import Game
@@ -61,33 +61,47 @@ class System:
         else:
             raise Exception('Unknown game mode')
         
-        play_game(game)
+        play_game(game, res)
 
-def play_game(game: Game) -> None:
+def play_game(game: Game, game_mode: str) -> None:
     game_over = False
 
+    msg: Optional[str] = None
+
     while not game_over:
-        clear_playing('Standard Chess')
+        clear_playing(game_mode)
 
         print(game)
-        print(repr(game) + '\n')
+        print(repr(game))
+        print(f'\nTurn: {game.turn} to move\n')
+
+        if msg:
+            print(msg)
+            msg = None
 
         res = get_list_input('Select an option', ['<--', '-->', 'move', 'exit'])
 
         match res:
             case '<--':
                 game.undo()
+            
             case '-->':
                 game.redo()
+            
             case 'move':
-                get_next_move(game)
+                try:
+                    get_next_move(game)
+                except ValueError as e:
+                    msg = f'error: {e}\n'
+                
             case 'exit':
                 game_over = True
                 clear()
+            
             case _:
                 raise Exception('Unknown option')
 
 def get_next_move(game: Game) -> None:
     res = get_text_input('Enter a move')
-
+    
     game.move(res)

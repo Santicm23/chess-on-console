@@ -1,6 +1,5 @@
 
 from ..game import Game
-from ...helpers.console import clear_playing
 from ...models.board import Board
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
 
@@ -22,4 +21,8 @@ class StandardGame(Game):
         self.fullmove_number = int(fullmove_number)
     
     def move(self, move: str) -> None:
-        return super().move(move)
+        super().move(move)
+        move_data = self.parse_move(move)
+        print(move_data)
+        self.change_turn()
+
