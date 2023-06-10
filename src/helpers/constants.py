@@ -1,4 +1,5 @@
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Self, Literal
@@ -8,6 +9,11 @@ from ..helpers.functions import col_to_int, int_to_col
 class Color(Enum):
     WHITE = auto(),
     BLACK = auto()
+
+color_map = {
+    'w': Color.WHITE,
+    'b': Color.BLACK
+}
 
 
 @dataclass
@@ -42,6 +48,13 @@ class Position(tuple[str, int]):
     def __ne__(self, other: Self) -> bool:
         return not self == other
     
+    def __next__(self) -> Self:
+        if self.col == 'h':
+            if self.row == 8:
+                raise StopIteration
+            return Position('a', self.row + 1)
+        return Position(int_to_col(col_to_int(self.col) + 1), self.row)
+
     def diff(self, other: Self) -> tuple[int, int]:
         return (col_to_int(self.col) - col_to_int(other.col), self.row - other.row)
-    
+

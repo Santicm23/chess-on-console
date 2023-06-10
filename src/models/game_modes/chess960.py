@@ -21,5 +21,8 @@ class Chess960Game(Game):
         self.halfmove_clock = int(halfmove_clock)
         self.fullmove_number = int(fullmove_number)
     
+    def update_legal_moves(self) -> None:
+        ...
+
     def move(self, move: str) -> None:
         return super().move(move)

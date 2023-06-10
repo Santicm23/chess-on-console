@@ -81,25 +81,24 @@ def play_game(game: Game, game_mode: str) -> None:
 
         res = get_list_input('Select an option', ['<--', '-->', 'move', 'exit'])
 
-        match res:
-            case '<--':
-                game.undo()
-            
-            case '-->':
-                game.redo()
-            
-            case 'move':
-                try:
-                    get_next_move(game)
-                except ValueError as e:
-                    msg = f'error: {e}\n'
+        if res == '<--':
+            game.undo()
+
+        elif res == '-->':
+            game.redo()
+
+        elif res == 'move':
+            try:
+                get_next_move(game)
+            except ValueError as e:
+                msg = f'error: {e}\n'
                 
-            case 'exit':
-                game_over = True
-                clear()
+        elif res == 'exit':
+            game_over = True
+            clear()
             
-            case _:
-                raise Exception('Unknown option')
+        else:
+            raise Exception('Unknown option')
 
 def get_next_move(game: Game) -> None:
     res = get_text_input('Enter a move')

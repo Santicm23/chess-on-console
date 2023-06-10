@@ -9,7 +9,7 @@ from .piece import Piece
 
 
 @dataclass(slots=True)
-class Board:
+class Board: #TODO: correct the type hints
     '''Chess board'''
 
     matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
@@ -66,19 +66,22 @@ class Board:
             for row in self.matrix
         )
 
-    def __getitem__(self, pos: str) -> Optional[Piece]:
-        position = Position(pos[0], int(pos[1]))
-        col, row = position
+    def __getitem__(self, pos: str | Position) -> Optional[Piece]:
+        if isinstance(pos, str):
+            pos = Position(pos[0], int(pos[1]))
+        col, row = pos
         return self.matrix[8 - row][col_to_int(col)]
 
-    def __setitem__(self, pos: str, piece: Piece) -> None:
-        position = Position(pos[0], int(pos[1]))
-        col, row = position
+    def __setitem__(self, pos: str | Position, piece: Optional[Piece]) -> None:
+        if isinstance(pos, str):
+            pos = Position(pos[0], int(pos[1]))
+        col, row = pos
         self.matrix[8 - row][col_to_int(col)] = piece
 
-    def __delitem__(self, pos: str) -> None:
-        position = Position(pos[0], int(pos[1]))
-        col, row = position
+    def __delitem__(self, pos: str | Position) -> None:
+        if isinstance(pos, str):
+            pos = Position(pos[0], int(pos[1]))
+        col, row = pos
         self.matrix[8 - row][col_to_int(col)] = None
 
     def __iter__(self) -> Generator[Optional[Piece], None, None]:
@@ -91,6 +94,14 @@ class Board:
 
     def __len__(self) -> int:
         return sum(len(pieces) for pieces in self.pieces.values())
+
+    def get_king(self, color: Color) -> Piece:
+        return self.pieces[color][0]
+
+    def move(self, piece: Piece, pos: Position) -> None:
+        del self[piece.pos]
+        piece.move(pos)
+        self[pos] = piece
 
     def undo(self) -> None:
         pass

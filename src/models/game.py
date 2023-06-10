@@ -74,7 +74,7 @@ class Game(ABC):
         color = Color.WHITE if self.turn == 'w' else Color.BLACK
         
         if move[0] == 'O':
-            piece = self.board.pieces[color][0] # King of the current color
+            piece = self.board.get_king(color)
             col: str = 'g' if move == 'O-O' else 'c'
             row: int = 1 if self.turn == 'w' else 8
             pos = Position(col, row)
@@ -113,11 +113,13 @@ class Game(ABC):
                     condicion = lambda pos: pos.row == int(move[1])
                     
             for p in self:
-                if p is not None and p.color == color and str(p).upper() == move[0] and condicion(p.pos):
+                if p is not None and p.color == color and str(p).upper() == move[0] and (
+                    condicion(p.pos) and p.is_legal(pos)
+                ):
                     piece = p
                     break
         
-        if piece is None :#or pos not in piece.legal_moves:
+        if piece is None:
             raise ValueError('Invalid move')
         
         return piece, pos, captured_piece, promotion_piece
@@ -129,5 +131,10 @@ class Game(ABC):
         self.board.redo()
 
     @abstractmethod
-    def move(self, move: str) -> None:...
+    def update_legal_moves(self) -> None:
+        '''Updates the legal moves of all pieces.'''
+
+    @abstractmethod
+    def move(self, move: str) -> None:
+        '''Moves a piece or throws an error if the move is illegal.'''
 

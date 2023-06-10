@@ -21,7 +21,7 @@ class Pawn(Piece):
 
                 if sqr is None:
                     return self.pos + (0, 1) == pos or (
-                        self.pos + (0, 2) == pos and self.pos[1] == 2 and board[self.pos + (0, 1)] is None
+                        self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
                     )
                 elif sqr.color == Color.BLACK:
                     return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
@@ -30,7 +30,7 @@ class Pawn(Piece):
 
                 if sqr is None:
                     return self.pos + (0, -1) == pos or (
-                        self.pos + (0, -2) == pos and self.pos[1] == 7 and board[self.pos + (0, -1)] is None
+                        self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
                     )
                 elif sqr.color == Color.WHITE:
                     return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
@@ -71,16 +71,16 @@ class Bishop(Piece):
     def can_move(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
         
-        return x != 0 and abs(x) == abs(y) and self.check_path(board, pos)
+        return abs(x) == abs(y) and self.check_path(board, pos)
     
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        x = 1 if x > 0 else -1
-        y = 1 if y > 0 else -1
+        cx = 1 if x > 0 else -1
+        cy = 1 if y > 0 else -1
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * x, i * y)] is not None:
+            if board[self.pos + (i * cx, i * cy)] is not None:
                 return False
         
         sqr = board[pos]
@@ -89,7 +89,7 @@ class Bishop(Piece):
 
 
 
-@dataclass(slots=True)
+@dataclass
 class Rook(Piece):
     '''Rook piece'''
 
@@ -103,11 +103,11 @@ class Rook(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        x = 1 if x > 0 else -1 if x < 0 else 0
-        y = 1 if y > 0 else -1 if y < 0 else 0
+        cx = 1 if x > 0 else -1 if x < 0 else 0
+        cy = 1 if y > 0 else -1 if y < 0 else 0
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * x, i * y)] is not None:
+            if board[self.pos + (i * cx, i * cy)] is not None:
                 return False
         
         sqr = board[pos]
@@ -131,11 +131,11 @@ class Queen(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        x = 1 if x > 0 else -1 if x < 0 else 0
-        y = 1 if y > 0 else -1 if y < 0 else 0
+        cx = 1 if x > 0 else -1 if x < 0 else 0
+        cy = 1 if y > 0 else -1 if y < 0 else 0
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * x, i * y)] is not None:
+            if board[self.pos + (i * cx, i * cy)] is not None:
                 return False
         
         sqr = board[pos]
