@@ -74,22 +74,24 @@ class Game(ABC):
         color = Color.WHITE if self.turn == 'w' else Color.BLACK
         
         if move[0] == 'O':
-            piece = self.board.pieces[color][0]
+            piece = self.board.pieces[color][0] # King of the current color
             col: str = 'g' if move == 'O-O' else 'c'
             row: int = 1 if self.turn == 'w' else 8
             pos = Position(col, row)
         
         else:
+            pos_index: int # Index of the move position in the string
             if '=' in move:
                 if move[0] in 'NBRQK':
                     raise ValueError('Invalid move')
                 
                 promotion_piece = self.pieces_from_fen[move[-1].lower()]
-
                 pos = Position(move[-4], int(move[-3]))
-            
+
+                pos_index = len(move) - 4
             else:
                 pos = Position(move[-2], int(move[-1]))
+                pos_index = len(move) - 2
 
             captured_piece = self[str(pos)]
             
@@ -98,9 +100,20 @@ class Game(ABC):
             
             if move[0] not in 'NBRQK':
                 move = 'P' + move
+                pos_index += 1
             
+            condicion: Callable[[Position], bool] = lambda _: True
+            
+            if pos_index != 1:
+                if move[1] in 'abcdefgh':
+                    condicion = lambda pos: pos.col == move[1]
+                    if move[2] in '12345678':
+                        condicion = lambda pos: pos.col == move[1] and pos.row == int(move[2])
+                elif move[1] in '12345678':
+                    condicion = lambda pos: pos.row == int(move[1])
+                    
             for p in self:
-                if p is not None and p.color == color and str(p).upper() == move[0]:
+                if p is not None and p.color == color and str(p).upper() == move[0] and condicion(p.pos):
                     piece = p
                     break
         

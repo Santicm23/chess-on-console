@@ -18,12 +18,12 @@ class Piece(ABC):
 
     color: Color
     pos: Position
-    legal_moves: list[Position] = field(init = False, default_factory = list)
+    legal_moves: list[str] = field(init = False, default_factory = list)
 
     def __str__(self) -> str:
         return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
     
-    def is_legal(self, pos: Position) -> bool:
+    def is_legal(self, pos: str) -> bool:
         return pos in self.legal_moves
     
     def move(self, pos: Position) -> None:
