@@ -3,8 +3,8 @@ from ..game import Game
 from ...models.board import Board
 from ...models.piece import Piece
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
+from ...helpers.constants import Position, color_map, Color
 from ...helpers.console import get_text_input
-from ...helpers.constants import Position, color_map
 
 
 class StandardGame(Game):
@@ -70,8 +70,20 @@ class StandardGame(Game):
                     break
 
     def move(self, move: str) -> None:
-        move_data = self.parse_move(move) 
-        print(move_data)
+        piece, pos, piece_captured, promotion_type = self.parse_move(move) 
+        previous_pos = piece.pos
+        self.board.move(piece, pos)
+        self.en_passant = '-'
+
+        if isinstance(piece, Pawn):
+            self.halfmove_clock = 0
+            chr_p = 'P' if piece.color == Color.BLACK else 'p' # pown of enemy color
+            if abs(piece.pos.row - previous_pos.row) == 2 and (
+                str(self.board[piece.pos + (1, 0)]) == chr_p or str(self.board[piece.pos + (-1, 0)]) == chr_p
+            ):
+                self.en_passant = str(piece.pos + (0, -1) if piece.color == Color.WHITE else piece.pos + (0, 1))
+        else:
+            self.halfmove_clock += 1
         self.change_turn()
-        get_text_input('Press enter to continue...')
+        self.update_legal_moves()
 

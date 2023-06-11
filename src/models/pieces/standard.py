@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass, field
-from typing import Type
+from typing import Type, Self
 
 from ..piece import Piece, Board
 from ...helpers.constants import Color, Position
@@ -89,7 +89,7 @@ class Bishop(Piece):
 
 
 
-@dataclass
+@dataclass(slots=True)
 class Rook(Piece):
     '''Rook piece'''
 
@@ -115,7 +115,7 @@ class Rook(Piece):
         return sqr is None or sqr.color != self.color
 
     def move(self, pos: Position) -> None:
-        super().move(pos)
+        super(Rook, self).move(pos)
         self.has_moved = True
 
 
@@ -196,6 +196,6 @@ class King(Piece):
             rook.move(self.pos + (1, 0))
     
     def move(self, pos: Position) -> None:
-        super().move(pos)
+        super(King, self).move(pos)
         self.has_moved = True
 
