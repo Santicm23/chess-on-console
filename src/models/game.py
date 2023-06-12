@@ -12,7 +12,45 @@ from ..helpers.constants import Position, Color
 
 @dataclass(slots=True)
 class Game(ABC):
-    '''Abstract class for all games.'''
+    '''
+    The Game class is an abstract class that represents a game.
+        - It requires the implementation of the update_legal_moves and move methods.
+        - The constructor receives the FEN of the starting position as parameter.
+
+    Attributes
+    ----------
+    `start_fen: str`
+        The FEN of the starting position
+    `board: Board`
+        The board
+    `turn: str`
+        The turn ('w' or 'b')
+    `castling: str`
+        The castling rights
+    `en_passant: str`
+        The en passant square
+    `halfmove_clock: int`
+        The halfmove clock
+    `fullmove_number: int`
+        The fullmove number
+    `pieces_from_fen: dict[str, Type[Piece]]`
+        A dictionary that maps the FEN of a piece to the piece class
+
+    Methods
+    -------
+    `change_turn() -> None`
+        Changes the turn
+    `parse_move(move: str) -> tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]`
+        Parses a move and returns the piece, start position, captured piece and promotion piece
+    `undo() -> None`
+        Undoes the last move
+    `redo() -> None`
+        Redoes the last undone move
+    `update_legal_moves() -> None`
+        Updates the legal moves of all the pieces
+    `move(move: str) -> None`
+        Moves a piece
+    '''
 
     start_fen: str = field(init = True)
     board: Board = field(init = False)
@@ -51,10 +89,31 @@ class Game(ABC):
         return len(self.board)
     
     def change_turn(self) -> None:
+        '''
+        Changes the turn
+        '''
+
         self.turn = 'w' if self.turn == 'b' else 'b'
 
     def parse_move(self, move: str) -> tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]:
-        '''Returns the piece, start position, captured piece and promotion piece of a move.'''
+        '''
+        Parses a move and returns the piece, start position, captured piece and promotion piece
+        
+        Parameters
+        ----------
+        `move: str`
+            The move to parse
+        
+        Raises
+        ------
+        `ValueError`
+            If the move is invalid
+        
+        Returns
+        -------
+        `tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]`
+            The piece, start position, captured piece and promotion piece
+        '''
 
         if not re.match(
             r'^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?|O(-O){1,2})$',
@@ -72,19 +131,12 @@ class Game(ABC):
         if move[0] == 'O':
             piece = self.board.get_king(color)
             castle_char: str
-
-            if move == 'O-O':
-                col = 'g'
-                castle_char = 'k'
-            else:
-                col = 'c'
-                castle_char = 'q'
             
-            if self.turn == 'w':
-                row = 1
-                castle_char = castle_char.upper()
-            else:
-                row = 8
+            col = 'g' if move == 'O-O' else 'c'
+            row = 1 if self.turn == 'w' else 8
+
+            castle_char = 'k' if move == 'O-O' else 'q'
+            castle_char = castle_char.upper() if self.turn == 'w' else castle_char.lower()
 
             if not castle_char in self.castling or not piece.can_castle(self.board, move):
                 raise ValueError('Invalid move')
@@ -137,16 +189,33 @@ class Game(ABC):
         return piece, pos, captured_piece, promotion_piece
 
     def undo(self) -> None:
+        '''
+        Undoes the last move
+        '''
+
         self.board.undo()
     
     def redo(self) -> None:
+        '''
+        Redoes the last undone move
+        '''
+
         self.board.redo()
 
     @abstractmethod
     def update_legal_moves(self) -> None:
-        '''Updates the legal moves of all pieces.'''
+        '''
+        Updates the legal moves of all the pieces
+        '''
 
     @abstractmethod
     def move(self, move: str) -> None:
-        '''Moves a piece or throws an error if the move is illegal.'''
+        '''
+        Moves a piece
+        
+        Parameters
+        ----------
+        `move: str`
+            The move to make
+        '''
 

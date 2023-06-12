@@ -15,25 +15,21 @@ class Pawn(Piece):
         super(Pawn, self).can_move(board, pos)
         sqr = board[pos]
 
-        match (self.color):
-
-            case Color.WHITE:
-
-                if sqr is None:
-                    return self.pos + (0, 1) == pos or (
-                        self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
-                    )
-                elif sqr.color == Color.BLACK:
-                    return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
-                
-            case Color.BLACK:
-
-                if sqr is None:
-                    return self.pos + (0, -1) == pos or (
-                        self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
-                    )
-                elif sqr.color == Color.WHITE:
-                    return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
+        if self.color == Color.WHITE:
+            if sqr is None:
+                return self.pos + (0, 1) == pos or (
+                    self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
+                )
+            elif sqr.color == Color.BLACK:
+                return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+            
+        else:
+            if sqr is None:
+                return self.pos + (0, -1) == pos or (
+                    self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
+                )
+            elif sqr.color == Color.WHITE:
+                return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
         
         return False
 
@@ -61,7 +57,9 @@ class Knight(Piece):
 
         if (new_x, new_y) in [(x + 1, y + 2), (x + 2, y + 1), (x + 2, y - 1), (x + 1, y - 2),
                               (x - 1, y - 2), (x - 2, y - 1), (x - 2, y + 1), (x - 1, y + 2)]:
-            return sqr is None or sqr.color != self.color
+            return super(Knight, self).can_move(board, pos) and (
+                    sqr is None or sqr.color != self.color
+                )
         
         return False
 
@@ -74,7 +72,7 @@ class Bishop(Piece):
         super(Bishop, self).can_move(board, pos)
         x, y = pos.diff(self.pos)
         
-        return abs(x) == abs(y) and self.check_path(board, pos)
+        return super(Bishop, self).can_move(board, pos) and abs(x) == abs(y) and self.check_path(board, pos)
     
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
@@ -101,7 +99,9 @@ class Rook(Piece):
 
         x, y = pos.diff(self.pos)
 
-        return (x == 0 or y == 0) and self.check_path(board, pos)
+        return super(Rook, self).can_move(board, pos) and (
+                x == 0 or y == 0
+            ) and self.check_path(board, pos)
     
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
@@ -130,7 +130,9 @@ class Queen(Piece):
 
         x, y = pos.diff(self.pos)
 
-        return (x == 0 or y == 0 or abs(x) == abs(y)) and self.check_path(board, pos)
+        return super(Queen, self).can_move(board, pos) and (
+                x == 0 or y == 0 or abs(x) == abs(y)
+            ) and self.check_path(board, pos)
     
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
@@ -160,12 +162,8 @@ class King(Piece):
         sqr = board[pos]
 
         return super(King, self).can_move(board, pos) and (
-            abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color) or (
-                (str(pos) == 'g1' or str(pos) == 'g8') and self.can_castle(board, 'O-O')
-            ) or (
-                (str(pos) == 'c1' or str(pos) == 'c8') and self.can_castle(board, 'O-O-O')
+                abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color)
             )
-        )
 
     def can_castle(self, board: Board, castle_type: str) -> bool: #Todo: check if in check or passing through check and if he can castle in chess960 mode
         rook: Rook

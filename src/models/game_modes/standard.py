@@ -8,7 +8,49 @@ from ...helpers.functions import col_to_int
 
 
 class StandardGame(Game):
-    '''Standard chess game'''
+    '''
+    The StandardGame class represents a standard chess game.
+        - It inherits from the Game class.
+        - It implements the update_legal_moves and move methods.
+    
+    Attributes
+    ----------
+    `start_fen: str`
+        The FEN of the starting position
+    `board: Board`
+        The board
+    `turn: str`
+        The turn ('w' or 'b')
+    `castling: str`
+        The castling rights
+    `en_passant: str`
+        The en passant square
+    `halfmove_clock: int`
+        The halfmove clock
+    `fullmove_number: int`
+        The fullmove number
+    `pieces_from_fen: dict[str, Type[Piece]]`
+        A dictionary that maps the FEN of a piece to the piece class
+    
+    Methods
+    -------
+    `change_turn() -> None`
+        Changes the turn
+    `parse_move(move: str) -> tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]`
+        Parses a move and returns the piece, start position, captured piece and promotion piece
+    `undo() -> None`
+        Undoes the last move
+    `redo() -> None`
+        Redoes the last undone move
+    `is_check(color: Color) -> bool`
+        Returns whether is check or not
+    `is_legal(piece: Piece, pos: Position) -> bool`
+        Returns whether a move is legal or not
+    `update_legal_moves() -> None`
+        Updates the legal moves of all the pieces
+    `move(move: str) -> None`
+        Moves a piece
+    '''
 
     def __init__(self, start_fen: str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') -> None:
         super().__init__(start_fen)
@@ -25,36 +67,68 @@ class StandardGame(Game):
         self.fullmove_number = int(fullmove_number)
         self.update_legal_moves()
     
-    def is_legal(self, piece: Piece, pos: Position) -> bool:
-        '''Returns whether a move is legal or not'''
+    def is_check(self) -> bool:
+        '''
+        Returns whether is check or not
 
-        if not piece.can_move(self.board, pos): #Todo: castling
+        Returns
+        -------
+        `bool`
+            Whether the color is in check or not
+        '''
+
+        color = color_map[self.turn]
+        self.change_turn()
+        enemy_color = color_map[self.turn]
+
+        res: bool = False
+
+        for p in self.board:
+            if p is not None and p.color == enemy_color and p.can_move(self.board, self.board.get_king(color).pos):
+                res = True
+                break
+        
+        self.change_turn()
+        
+        return res
+
+    def is_legal(self, piece: Piece, pos: Position) -> bool:
+        '''
+        Returns whether a move is legal or not
+
+        Parameters
+        ----------
+        `piece: Piece`
+            The piece to move
+        `pos: Position`
+            The position to move to
+
+        Returns
+        -------
+        `bool`
+            Whether the move is legal or not
+        '''
+
+        if not piece.can_move(self.board, pos):
             return False
         
         piece_captured = self.board[pos]
         previous_pos = piece.pos
 
-        enemy_color = color_map[self.turn]
-
         self.board.move(piece, pos)
-        self.change_turn()
 
-        color = color_map[self.turn]
-
-        res: bool = True
-
-        for p in self.board:
-            if p is not None and p.color == color and p.can_move(self.board, self.board.get_king(enemy_color).pos):
-                res = False
-                break
+        res = not self.is_check()
 
         self.board.move(piece, previous_pos)
         self.board[pos] = piece_captured
-        self.change_turn()
 
         return res
 
     def update_legal_moves(self) -> None:
+        '''
+        Updates the legal moves of all the pieces
+        '''
+
         for p in self.board:
             tmp_pos = Position('a', 1)
             if p is None:
@@ -73,6 +147,19 @@ class StandardGame(Game):
                     break
 
     def move(self, move: str) -> None:
+        '''
+        Moves a piece
+
+        Parameters
+        ----------
+        `move: str`
+            The move to make
+        
+        Raises
+        ------
+        `ValueError`
+            If the move is not legal
+        '''
         piece, pos, piece_captured, promotion_type = self.parse_move(move) 
         previous_pos = piece.pos
         self.board.move(piece, pos)
