@@ -143,7 +143,6 @@ class StandardGame(Game):
                 try:
                     tmp_pos = next(tmp_pos)
                 except StopIteration:
-                    print(f'piece {p}, pos {str(p.pos)}', p.legal_moves)
                     break
 
     def move(self, move: str) -> None:
@@ -160,6 +159,7 @@ class StandardGame(Game):
         `ValueError`
             If the move is not legal
         '''
+        
         piece, pos, piece_captured, promotion_type = self.parse_move(move) 
         previous_pos = piece.pos
         self.board.move(piece, pos)

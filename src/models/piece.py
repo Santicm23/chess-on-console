@@ -7,9 +7,9 @@ from typing import Optional, Protocol
 from ..helpers.constants import Color, Position
 
 
-class Board(Protocol): #TODO: correct the type hints
+class Board(Protocol):
 
-    def __getitem__(self, pos: Position) -> Optional[Piece]:...
+    def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 
 
 @dataclass(slots=True)

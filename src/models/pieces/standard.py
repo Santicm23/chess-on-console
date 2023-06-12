@@ -206,8 +206,8 @@ class King(Piece):
 
         if rook_x < x:
             self.move(self.pos - (2, 0))
-            rook.move(self.pos - (1, 0))
+            rook.move(self.pos + (1, 0))
         else:
             self.move(self.pos + (2, 0))
-            rook.move(self.pos + (1, 0))
+            rook.move(self.pos - (1, 0))
 

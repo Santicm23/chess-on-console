@@ -10,8 +10,32 @@ from .pieces.standard import King, Rook
 
 
 @dataclass(slots=True)
-class Board: #TODO: correct the type hints
-    '''Chess board'''
+class Board:
+    '''
+    Chess board
+
+    Attributes
+    ----------
+    `matrix: List[List[Optional[Piece]]]`
+        Matrix of pieces on the board
+    `pieces: dict[Color, List[Piece]]`
+        Dictionary of pieces on the board
+    
+    Methods
+    -------
+    `from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self`
+        Create a board from a FEN string
+    `load_fen(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> None`
+        Load a FEN string into the board
+    `get_king(self, color: Color) -> King`
+        Get the king of a color
+    `move(self, piece: Piece, pos: Position) -> None`
+        Move a piece to a position
+    `undo(self) -> None`
+        Undo the last move
+    `redo(self) -> None`
+        Redo the last move
+    '''
 
     matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
     pieces: dict[Color, List[Piece]] = field(init = False, default_factory = lambda: {
@@ -20,11 +44,42 @@ class Board: #TODO: correct the type hints
     
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
+        '''
+        Create a board from a FEN string
+
+        Parameters
+        ----------
+        `fen: str`
+            FEN string
+        `pieces_from_fen: dict[str, Type[Piece]]`
+            Dictionary of pieces to create from the FEN string
+        
+        Returns
+        -------
+        `Board`
+            Board created from the FEN string
+        '''
+
         board = cls()
         board.load_fen(fen, pieces_from_fen)
         return board
     
     def load_fen(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> None:
+        '''
+        Load a FEN string into the board
+
+        Parameters
+        ----------
+        `fen: str`
+            FEN string
+        `pieces_from_fen: dict[str, Type[Piece]]`
+            Dictionary of pieces to create from the FEN string
+
+        Returns
+        -------
+        `None`
+        '''
+
         fen_list = fen.split('/')
         
         i_row = 8
@@ -97,16 +152,52 @@ class Board: #TODO: correct the type hints
         return sum(len(pieces) for pieces in self.pieces.values())
 
     def get_king(self, color: Color) -> King:
+        '''
+        Get the king of a color
+
+        Parameters
+        ----------
+        `color: Color`
+            Color of the king to get
+        
+        Returns
+        -------
+        `King`
+            King of the color
+        '''
+
+
         king = self.pieces[color][0]
         if isinstance(king, King):
             return king
         raise TypeError(f'Expected King, got {type(self.pieces[color][0])}')
 
     def move(self, piece: Piece, pos: Position) -> None:
+        '''
+        Move a piece to a position
+
+        Parameters
+        ----------
+        `piece: Piece`
+            Piece to move
+        `pos: Position`
+            Position to move the piece to
+        
+        Raises
+        ------
+        `ValueError`
+            If cannot castle (The rook is not in the right place BUG)
+        
+        Returns
+        -------
+        `None`
+        '''
+
         if isinstance(piece, King) and abs(piece.pos.diff(pos)[0]) == 2:
             rook = self[pos + (1, 0)] if pos.col == 'g' else self[pos - (2, 0)]
             castle_pos = Position('f' if pos.col == 'g' else 'd', pos.row)
-            if rook is not None and isinstance(rook, Rook) and rook.color == piece.color:
+
+            if isinstance(rook, Rook) and rook.color == piece.color:
                 del self[piece.pos]
                 del self[rook.pos]
                 piece.castle(rook)
@@ -119,9 +210,13 @@ class Board: #TODO: correct the type hints
             piece.move(pos)
             self[pos] = piece
 
-    def undo(self) -> None:
-        pass
+    def undo(self) -> None: #! TODO: Implement
+        '''
+        Undo the last move
+        '''
 
-    def redo(self) -> None:
-        pass
+    def redo(self) -> None: #! TODO: Implement
+        '''
+        Redo the last move
+        '''
 

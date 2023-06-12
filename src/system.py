@@ -105,5 +105,3 @@ def get_next_move(game: Game) -> None:
     res = get_text_input('Enter a move')
     
     game.move(res)
-
-    get_text_input('Press enter to continue')
