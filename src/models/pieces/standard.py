@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass, field
-from typing import Type, Self
+from typing import Type, Optional
 
 from ..piece import Piece, Board
 from ...helpers.constants import Color, Position
@@ -12,7 +12,7 @@ class Pawn(Piece):
     '''Pawn piece'''
     
     def can_move(self, board: Board, pos: Position) -> bool:
-
+        super(Pawn, self).can_move(board, pos)
         sqr = board[pos]
 
         match (self.color):
@@ -49,6 +49,8 @@ class Knight(Piece):
         return 'N' if self.color == Color.WHITE else 'n'
     
     def can_move(self, board: Board, pos: Position) -> bool:
+        super(Knight, self).can_move(board, pos)
+
         x, y = self.pos
         new_x, new_y = pos
 
@@ -69,6 +71,7 @@ class Bishop(Piece):
     '''Bishop piece'''
 
     def can_move(self, board: Board, pos: Position) -> bool:
+        super(Bishop, self).can_move(board, pos)
         x, y = pos.diff(self.pos)
         
         return abs(x) == abs(y) and self.check_path(board, pos)
@@ -93,9 +96,9 @@ class Bishop(Piece):
 class Rook(Piece):
     '''Rook piece'''
 
-    has_moved: bool = field(init=False, default=False)
-
     def can_move(self, board: Board, pos: Position) -> bool:
+        super(Rook, self).can_move(board, pos)
+
         x, y = pos.diff(self.pos)
 
         return (x == 0 or y == 0) and self.check_path(board, pos)
@@ -103,10 +106,13 @@ class Rook(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        cx = 1 if x > 0 else -1 if x < 0 else 0
-        cy = 1 if y > 0 else -1 if y < 0 else 0
+        cx = 1 if x > 0 else (-1 if x < 0 else 0)
+        cy = 1 if y > 0 else (-1 if y < 0 else 0)
 
         for i in range(1, abs(x)):
+            if board[self.pos + (i * cx, i * cy)] is not None:
+                return False
+        for i in range(1, abs(y)):
             if board[self.pos + (i * cx, i * cy)] is not None:
                 return False
         
@@ -114,16 +120,14 @@ class Rook(Piece):
 
         return sqr is None or sqr.color != self.color
 
-    def move(self, pos: Position) -> None:
-        super(Rook, self).move(pos)
-        self.has_moved = True
-
 
 @dataclass(slots=True)
 class Queen(Piece):
     '''Queen piece'''
 
     def can_move(self, board: Board, pos: Position) -> bool:
+        super(Queen, self).can_move(board, pos)
+
         x, y = pos.diff(self.pos)
 
         return (x == 0 or y == 0 or abs(x) == abs(y)) and self.check_path(board, pos)
@@ -131,10 +135,13 @@ class Queen(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        cx = 1 if x > 0 else -1 if x < 0 else 0
-        cy = 1 if y > 0 else -1 if y < 0 else 0
+        cx = 1 if x > 0 else (-1 if x < 0 else 0)
+        cy = 1 if y > 0 else (-1 if y < 0 else 0)
 
         for i in range(1, abs(x)):
+            if board[self.pos + (i * cx, i * cy)] is not None:
+                return False
+        for i in range(1, abs(y)):
             if board[self.pos + (i * cx, i * cy)] is not None:
                 return False
         
@@ -147,22 +154,33 @@ class Queen(Piece):
 class King(Piece):
     '''King piece'''
 
-    has_moved: bool = field(init=False, default=False)
-    check: bool = field(init=False, default=False)
-
     def can_move(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
         sqr = board[pos]
 
-        return abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color)
-    
-    def update_check(self, check: bool) -> None:
-        self.check = check
+        return super(King, self).can_move(board, pos) and (
+            abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color) or (
+                (str(pos) == 'g1' or str(pos) == 'g8') and self.can_castle(board, 'O-O')
+            ) or (
+                (str(pos) == 'c1' or str(pos) == 'c8') and self.can_castle(board, 'O-O-O')
+            )
+        )
 
-    def can_castle(self, board: Board, rook: Rook) -> bool:
-        if self.has_moved or rook.has_moved:
+    def can_castle(self, board: Board, castle_type: str) -> bool: #Todo: check if in check or passing through check and if he can castle in chess960 mode
+        rook: Rook
+        piece: Optional[Piece]
+        if castle_type == 'O-O':
+            piece = board[self.pos + (3, 0)]
+        elif castle_type == 'O-O-O':
+            piece = board[self.pos + (-4, 0)]
+        else:
             return False
+        
+        if piece is None or not isinstance(piece, Rook):
+            return False
+        
+        rook = piece
         
         x = self.pos.col
         rook_x = rook.pos.col
@@ -172,11 +190,11 @@ class King(Piece):
 
         if rook_x < x:
             for i in range(1, 4):
-                if board[self.pos - (i, 0)] is not None:
+                if board[self.pos - (i, 0)] is not None and not isinstance(board[self.pos - (i, 0)], King):
                     return False
         else:
             for i in range(1, 3):
-                if board[self.pos + (i, 0)] is not None:
+                if board[self.pos + (i, 0)] is not None and not isinstance(board[self.pos + (i, 0)], King):
                     return False
         
         return True
@@ -194,8 +212,4 @@ class King(Piece):
         else:
             self.move(self.pos + (2, 0))
             rook.move(self.pos + (1, 0))
-    
-    def move(self, pos: Position) -> None:
-        super(King, self).move(pos)
-        self.has_moved = True
 

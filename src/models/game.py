@@ -51,11 +51,7 @@ class Game(ABC):
         return len(self.board)
     
     def change_turn(self) -> None:
-        if self.turn == 'w':
-            self.turn = 'b'
-        else:
-            self.turn = 'w'
-            self.fullmove_number += 1
+        self.turn = 'w' if self.turn == 'b' else 'b'
 
     def parse_move(self, move: str) -> tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]:
         '''Returns the piece, start position, captured piece and promotion piece of a move.'''
@@ -75,8 +71,24 @@ class Game(ABC):
         
         if move[0] == 'O':
             piece = self.board.get_king(color)
-            col: str = 'g' if move == 'O-O' else 'c'
-            row: int = 1 if self.turn == 'w' else 8
+            castle_char: str
+
+            if move == 'O-O':
+                col = 'g'
+                castle_char = 'k'
+            else:
+                col = 'c'
+                castle_char = 'q'
+            
+            if self.turn == 'w':
+                row = 1
+                castle_char = castle_char.upper()
+            else:
+                row = 8
+
+            if not castle_char in self.castling or not piece.can_castle(self.board, move):
+                raise ValueError('Invalid move')
+            
             pos = Position(col, row)
         
         else:
@@ -114,7 +126,7 @@ class Game(ABC):
                     
             for p in self:
                 if p is not None and p.color == color and str(p).upper() == move[0] and (
-                    condicion(p.pos) and p.is_legal(pos)
+                    condicion(p.pos) and p.is_legal_move(pos)
                 ):
                     piece = p
                     break

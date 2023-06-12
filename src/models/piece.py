@@ -23,7 +23,7 @@ class Piece(ABC):
     def __str__(self) -> str:
         return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
     
-    def is_legal(self, pos: str | Position) -> bool:
+    def is_legal_move(self, pos: str | Position) -> bool:
         if isinstance(pos, str) and pos[1].isdigit():
             pos = Position(pos[0], int(pos[1]))
         return pos in self.legal_moves

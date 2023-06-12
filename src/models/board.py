@@ -6,6 +6,7 @@ from itertools import groupby
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position
 from .piece import Piece
+from .pieces.standard import King, Rook
 
 
 @dataclass(slots=True)
@@ -95,13 +96,28 @@ class Board: #TODO: correct the type hints
     def __len__(self) -> int:
         return sum(len(pieces) for pieces in self.pieces.values())
 
-    def get_king(self, color: Color) -> Piece:
-        return self.pieces[color][0]
+    def get_king(self, color: Color) -> King:
+        king = self.pieces[color][0]
+        if isinstance(king, King):
+            return king
+        raise TypeError(f'Expected King, got {type(self.pieces[color][0])}')
 
     def move(self, piece: Piece, pos: Position) -> None:
-        del self[piece.pos]
-        piece.move(pos)
-        self[pos] = piece
+        if isinstance(piece, King) and abs(piece.pos.diff(pos)[0]) == 2:
+            rook = self[pos + (1, 0)] if pos.col == 'g' else self[pos - (2, 0)]
+            castle_pos = Position('f' if pos.col == 'g' else 'd', pos.row)
+            if rook is not None and isinstance(rook, Rook) and rook.color == piece.color:
+                del self[piece.pos]
+                del self[rook.pos]
+                piece.castle(rook)
+                self[castle_pos] = rook
+                self[pos] = piece
+            else:
+                raise ValueError('Invalid castling')
+        else:
+            del self[piece.pos]
+            piece.move(pos)
+            self[pos] = piece
 
     def undo(self) -> None:
         pass

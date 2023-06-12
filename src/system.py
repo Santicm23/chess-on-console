@@ -79,19 +79,20 @@ def play_game(game: Game, game_mode: str) -> None:
             print(msg)
             msg = None
 
-        res = get_list_input('Select an option', ['<--', '-->', 'move', 'exit'])
+        res = get_list_input('Select an option', ['move', '<--', '-->', 'exit'])
 
-        if res == '<--':
+        if res == 'move':
+            try:
+                get_next_move(game)
+            except ValueError as e:
+                get_text_input('Press enter to continue')
+                msg = f'error: {e}\n'
+
+        elif res == '<--':
             game.undo()
 
         elif res == '-->':
             game.redo()
-
-        elif res == 'move':
-            try:
-                get_next_move(game)
-            except ValueError as e:
-                msg = f'error: {e}\n'
                 
         elif res == 'exit':
             game_over = True
@@ -104,3 +105,5 @@ def get_next_move(game: Game) -> None:
     res = get_text_input('Enter a move')
     
     game.move(res)
+
+    get_text_input('Press enter to continue')
