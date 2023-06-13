@@ -144,7 +144,7 @@ class StandardGame(Game):
                 except StopIteration:
                     break
 
-    def move(self, move: str) -> None: #TODO: en passant and check if king passes through check (castle)
+    def move(self, move: str) -> None: #TODO: check if king passes through check (castle)
         '''
         Moves a piece
 
@@ -161,22 +161,31 @@ class StandardGame(Game):
         
         piece, pos, piece_captured, promotion_type = self.parse_move(move) 
         previous_pos = piece.pos
-        self.en_passant = '-'
+        en_passant_changed = False
+        self.halfmove_clock += 1
 
         match piece:
             case Pawn():
                 self.halfmove_clock = 0
                 chr_p = 'P' if piece.color == Color.BLACK else 'p' # pawn of enemy color
+
                 if abs(pos.row - previous_pos.row) == 2 and (
                     str(self.board[pos + (1, 0)]) == chr_p or str(self.board[pos + (-1, 0)]) == chr_p
                 ):
-                    self.en_passant = str(pos + (0, -1) if piece.color == Color.WHITE else pos + (0, 1))
+                    self.board.en_passant = pos + (0, -1) if piece.color == Color.WHITE else pos + (0, 1)
+                    self.en_passant = str(self.board.en_passant)
+                    en_passant_changed = True
                 
-                if pos.row == 1 or pos.row == 8:
+                elif pos.row == 1 or pos.row == 8:
                     if promotion_type is not None:
                         piece.promote(promotion_type)
                     else:
                         raise ValueError('Promotion type not specified')
+                    
+                elif str(pos) == self.en_passant:
+                    assert piece_captured
+
+                    del self.board[piece_captured.pos]
                 
             case King():
                 if piece.color == Color.WHITE:
@@ -197,8 +206,10 @@ class StandardGame(Game):
             case _:
                 pass
         
+        if not en_passant_changed:
+            self.en_passant = '-'
+        
         self.board.move(piece, pos)
-        self.halfmove_clock += 1
         
         if piece_captured is not None:
             self.halfmove_clock = 0

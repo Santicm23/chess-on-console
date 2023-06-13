@@ -37,6 +37,9 @@ class Pawn(Piece):
 
         if self.color == Color.WHITE:
             if sqr is None:
+                if board.en_passant == pos:
+                    return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+                
                 return self.pos + (0, 1) == pos or (
                     self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
                 )
@@ -45,6 +48,9 @@ class Pawn(Piece):
             
         else:
             if sqr is None:
+                if board.en_passant == pos:
+                    return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+                
                 return self.pos + (0, -1) == pos or (
                     self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
                 )

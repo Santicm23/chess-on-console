@@ -7,7 +7,10 @@ from typing import Optional, Protocol
 from ..helpers.constants import Color, Position
 
 
+@dataclass(slots=True)
 class Board(Protocol):
+
+    en_passant: Optional[Position] = field(init = False)
 
     def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 

@@ -6,7 +6,7 @@ from typing import Optional, Type, Generator, Callable
 
 from .board import Board
 from .piece import Piece
-from .pieces.standard import King
+from .pieces.standard import King, Pawn
 from ..helpers.constants import Position, Color
 
 
@@ -177,11 +177,6 @@ class Game(ABC):
             else:
                 pos = Position(move[-2], int(move[-1]))
                 pos_index = len(move) - 2
-
-            captured_piece = self[str(pos)]
-            
-            if 'x' in move and captured_piece is None:
-                raise ValueError('Invalid move')
             
             if move[0] not in 'NBRQK':
                 move = 'P' + move
@@ -198,13 +193,23 @@ class Game(ABC):
                     condicion = lambda pos: pos.row == int(move[1])
                     
             for p in self:
-                if p is not None and p.color == color and str(p).upper() == move[0] and (
+                if p and p.color == color and str(p).upper() == move[0] and (
                     condicion(p.pos) and p.is_legal_move(pos)
                 ):
                     piece = p
                     break
+            
+            if isinstance(piece, Pawn) and pos == self.en_passant:
+                captured_piece = self[pos.col + ('5' if self.turn == 'w' else '4')]
+            else:
+                captured_piece = self[str(pos)]
+            
+            if 'x' in move and not captured_piece:
+                raise ValueError('Invalid move')
+            elif 'x' not in move and captured_piece:
+                raise ValueError('Invalid move')
         
-        if piece is None:
+        if not piece:
             raise ValueError('Invalid move')
         
         return piece, pos, captured_piece, promotion_piece

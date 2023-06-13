@@ -60,6 +60,7 @@ class Board:
     pieces: dict[Color, List[Piece]] = field(init = False, default_factory = lambda: {
         Color.WHITE: [], Color.BLACK: []
     })
+    en_passant: Optional[Position] = field(init = False, default = None)
     
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
