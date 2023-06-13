@@ -3,7 +3,7 @@ from ..game import Game
 from ...models.board import Board
 from ...models.piece import Piece
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
-from ...helpers.constants import Position, color_map, Color
+from ...helpers.constants import Position, COLOR_MAP, Color
 
 
 class StandardGame(Game):
@@ -76,9 +76,9 @@ class StandardGame(Game):
             Whether the color is in check or not
         '''
 
-        color = color_map[self.turn]
+        color = COLOR_MAP[self.turn]
         self.change_turn()
-        enemy_color = color_map[self.turn]
+        enemy_color = COLOR_MAP[self.turn]
 
         res: bool = False
 
@@ -144,7 +144,7 @@ class StandardGame(Game):
                 except StopIteration:
                     break
 
-    def move(self, move: str) -> None: #TODO: promotion
+    def move(self, move: str) -> None: #TODO: en passant and check if king passes through check (castle)
         '''
         Moves a piece
 
@@ -161,18 +161,22 @@ class StandardGame(Game):
         
         piece, pos, piece_captured, promotion_type = self.parse_move(move) 
         previous_pos = piece.pos
-        self.board.move(piece, pos)
         self.en_passant = '-'
 
-        self.halfmove_clock += 1
         match piece:
             case Pawn():
                 self.halfmove_clock = 0
                 chr_p = 'P' if piece.color == Color.BLACK else 'p' # pawn of enemy color
-                if abs(piece.pos.row - previous_pos.row) == 2 and (
-                    str(self.board[piece.pos + (1, 0)]) == chr_p or str(self.board[piece.pos + (-1, 0)]) == chr_p
+                if abs(pos.row - previous_pos.row) == 2 and (
+                    str(self.board[pos + (1, 0)]) == chr_p or str(self.board[pos + (-1, 0)]) == chr_p
                 ):
-                    self.en_passant = str(piece.pos + (0, -1) if piece.color == Color.WHITE else piece.pos + (0, 1))
+                    self.en_passant = str(pos + (0, -1) if piece.color == Color.WHITE else pos + (0, 1))
+                
+                if pos.row == 1 or pos.row == 8:
+                    if promotion_type is not None:
+                        piece.promote(promotion_type)
+                    else:
+                        raise ValueError('Promotion type not specified')
                 
             case King():
                 if piece.color == Color.WHITE:
@@ -181,21 +185,26 @@ class StandardGame(Game):
                     self.castling = self.castling.replace('k', '').replace('q', '')
             
             case Rook():
-                if piece.pos == Position('a', 1):
+                if previous_pos == Position('a', 1):
                     self.castling = self.castling.replace('Q', '')
-                elif piece.pos == Position('h', 1):
+                elif previous_pos == Position('h', 1):
                     self.castling = self.castling.replace('K', '')
-                elif piece.pos == Position('a', 8):
+                elif previous_pos == Position('a', 8):
                     self.castling = self.castling.replace('q', '')
-                elif piece.pos == Position('h', 8):
+                elif previous_pos == Position('h', 8):
                     self.castling = self.castling.replace('k', '')
             
             case _:
                 pass
         
+        self.board.move(piece, pos)
+        self.halfmove_clock += 1
+        
         if piece_captured is not None:
             self.halfmove_clock = 0
-        
+
+        if self.castling == '':
+            self.castling = '-'
 
         self.change_turn()
         if self.turn == 'w':

@@ -1,6 +1,5 @@
 
 from ..game import Game
-from ...helpers.console import clear_playing
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
 from ...models.board import Board
 
@@ -21,6 +20,9 @@ class Chess960Game(Game):
         self.halfmove_clock = int(halfmove_clock)
         self.fullmove_number = int(fullmove_number)
     
+    def is_check(self) -> bool:
+        ...
+
     def update_legal_moves(self) -> None:
         ...
 

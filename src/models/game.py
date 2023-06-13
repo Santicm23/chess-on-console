@@ -65,6 +65,8 @@ class Game(ABC):
         Undoes the last move
     `redo() -> None`
         Redoes the last undone move
+    `is_check() -> bool`
+        Returns True if the king of the player whose turn it is is in check
     `update_legal_moves() -> None`
         Updates the legal moves of all the pieces
     `move(move: str) -> None`
@@ -157,7 +159,7 @@ class Game(ABC):
             castle_char = 'k' if move == 'O-O' else 'q'
             castle_char = castle_char.upper() if self.turn == 'w' else castle_char.lower()
 
-            if not castle_char in self.castling or not piece.can_castle(self.board, move):
+            if not castle_char in self.castling or not piece.can_castle(self.board, move) or self.is_check():
                 raise ValueError('Invalid move')
             
             pos = Position(col, row)
@@ -220,6 +222,12 @@ class Game(ABC):
         '''
 
         self.board.redo()
+
+    @abstractmethod
+    def is_check(self) -> bool:
+        '''
+        Returns whether the current player is in check or not
+        '''
 
     @abstractmethod
     def update_legal_moves(self) -> None:

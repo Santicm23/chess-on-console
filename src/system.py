@@ -92,7 +92,7 @@ class System:
         ------
         `AssertionError`
             If the user's command is not in the `commands` dictionary.
-        `ValueError`
+        `SyntaxError`
             If the game mode is not recognized or if the user enters an unknown option in the play menu.
         '''
 
@@ -109,7 +109,7 @@ class System:
         elif res == 'Chess960':
             game = Chess960Game()
         else:
-            raise ValueError('Unknown game mode')
+            raise NameError('Unknown game mode')
         
         play_game(game, res)
 

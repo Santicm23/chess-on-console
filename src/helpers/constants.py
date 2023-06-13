@@ -1,5 +1,4 @@
 
-from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Any, Self, Literal
@@ -10,9 +9,18 @@ class Color(Enum):
     WHITE = auto(),
     BLACK = auto()
 
-color_map = {
+COLOR_MAP = {
     'w': Color.WHITE,
     'b': Color.BLACK
+}
+
+SPECIAL_CHARS: dict[str, str] = {
+    'p': '♙', 'P': '♟',
+    'n': '♘', 'N': '♞',
+    'b': '♗', 'B': '♝',
+    'r': '♖', 'R': '♜',
+    'q': '♕', 'Q': '♛',
+    'k': '♔', 'K': '♚'
 }
 
 

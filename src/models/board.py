@@ -4,7 +4,7 @@ from typing import List, Optional, Generator, Type, Self
 from itertools import groupby
 
 from ..helpers.functions import col_to_int, int_to_col
-from ..helpers.constants import Color, Position
+from ..helpers.constants import Color, Position, SPECIAL_CHARS
 from .piece import Piece
 from .pieces.standard import King, Rook
 
@@ -128,7 +128,7 @@ class Board:
         border: str = '  +---+---+---+---+---+---+---+---+\n'
         rank_labels: str = '    a   b   c   d   e   f   g   h\n'
         return border + border.join(
-                f'{8 - i} | ' + ' | '.join(str(piece) if piece is not None else ' ' for piece in row) + ' |\n'
+                f'{8 - i} | ' + ' | '.join(SPECIAL_CHARS[str(piece)] if piece is not None else ' ' for piece in row) + ' |\n'
                 for i, row in enumerate(self.matrix)
             ) + border + rank_labels
 
