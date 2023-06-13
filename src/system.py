@@ -10,7 +10,23 @@ from .models.game_modes.chess960 import Chess960Game
 
 @dataclass(slots=True)
 class System:
-    '''System class for the program.'''
+    '''
+    A class that represents the system of the program.
+
+    Attributes
+    ----------
+    `commands : dict[str, Callable[[], None]]`
+        A dictionary of commands that the user can execute.
+    
+    Methods
+    -------
+    `menu() -> None`
+        Displays the menu and executes the user's commands.
+    `execute(command: str) -> None`
+        Executes the given command.
+    `select_game_mode() -> None`
+        Displays the game mode selection menu and starts the game.
+    '''
 
     commands: dict[str, Callable[[], None]] = field(kw_only = True, default_factory = dict)
 
@@ -28,6 +44,15 @@ class System:
         self.commands['exit'] = lambda: print('Exiting...\n')
 
     def menu(self) -> None:
+        '''
+        Displays the menu and executes the user's commands.
+
+        Raises
+        ------
+        `AssertionError`
+            If the user's command is not in the `commands` dictionary.
+        '''
+
         clear()
 
         res: str = ''
@@ -41,11 +66,36 @@ class System:
             self.execute(res)
 
     def execute(self, command: str) -> None:
+        '''
+        Executes the given command.
+
+        Parameters
+        ----------
+        `command : str`
+            The command to execute.
+
+        Raises
+        ------
+        `AssertionError`
+            If the user's command is not in the `commands` dictionary.
+        '''
+
         assert command in self.commands
         
         self.commands[command]()
 
     def select_game_mode(self) -> None:
+        '''
+        Displays the game mode selection menu and starts the game.
+
+        Raises
+        ------
+        `AssertionError`
+            If the user's command is not in the `commands` dictionary.
+        `ValueError`
+            If the game mode is not recognized or if the user enters an unknown option in the play menu.
+        '''
+
         clear_playing()
         
         res = get_list_input('Select a game mode', ['Standard Chess', 'Chess960'])
@@ -59,11 +109,27 @@ class System:
         elif res == 'Chess960':
             game = Chess960Game()
         else:
-            raise Exception('Unknown game mode')
+            raise ValueError('Unknown game mode')
         
         play_game(game, res)
 
 def play_game(game: Game, game_mode: str) -> None:
+    '''
+    Displays the game and executes the user's commands.
+
+    Parameters
+    ----------
+    `game : Game`
+        The game to play.
+    `game_mode : str`
+        The game mode to play.
+    
+    Raises
+    ------
+    `ValueError`
+        If the user enters an unknown option in the play menu.
+    '''
+
     game_over = False
 
     msg: Optional[str] = None
@@ -85,7 +151,6 @@ def play_game(game: Game, game_mode: str) -> None:
             try:
                 get_next_move(game)
             except ValueError as e:
-                get_text_input('Press enter to continue')
                 msg = f'error: {e}\n'
 
         elif res == '<--':
@@ -99,9 +164,23 @@ def play_game(game: Game, game_mode: str) -> None:
             clear()
             
         else:
-            raise Exception('Unknown option')
+            raise ValueError('Unknown option')
 
 def get_next_move(game: Game) -> None:
+    '''
+    Gets the next move from the user and executes it.
+
+    Parameters
+    ----------
+    `game : Game`
+        The game to play.
+    
+    Raises
+    ------
+    `ValueError`
+        If the user enters an invalid move.
+    '''
+
     res = get_text_input('Enter a move')
     
     game.move(res)

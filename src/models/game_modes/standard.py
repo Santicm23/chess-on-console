@@ -4,7 +4,6 @@ from ...models.board import Board
 from ...models.piece import Piece
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
 from ...helpers.constants import Position, color_map, Color
-from ...helpers.functions import col_to_int
 
 
 class StandardGame(Game):
@@ -145,7 +144,7 @@ class StandardGame(Game):
                 except StopIteration:
                     break
 
-    def move(self, move: str) -> None:
+    def move(self, move: str) -> None: #TODO: promotion
         '''
         Moves a piece
 
@@ -190,6 +189,9 @@ class StandardGame(Game):
                     self.castling = self.castling.replace('q', '')
                 elif piece.pos == Position('h', 8):
                     self.castling = self.castling.replace('k', '')
+            
+            case _:
+                pass
         
         if piece_captured is not None:
             self.halfmove_clock = 0

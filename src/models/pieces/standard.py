@@ -1,5 +1,5 @@
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Type, Optional
 
 from ..piece import Piece, Board
@@ -9,7 +9,27 @@ from ...helpers.functions import col_to_int
 
 @dataclass(slots=True)
 class Pawn(Piece):
-    '''Pawn piece'''
+    '''
+    Pawn piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    `promote(piece_type: Type[Piece]) -> None`
+        Promotes the pawn to the given piece type.
+    '''
     
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Pawn, self).can_move(board, pos)
@@ -39,7 +59,25 @@ class Pawn(Piece):
 
 @dataclass(slots=True)
 class Knight(Piece):
-    '''Knight piece'''
+    '''
+    Knight piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    '''
 
     def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
@@ -66,7 +104,25 @@ class Knight(Piece):
 
 @dataclass(slots=True)
 class Bishop(Piece):
-    '''Bishop piece'''
+    '''
+    Bishop piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    '''
 
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Bishop, self).can_move(board, pos)
@@ -92,7 +148,25 @@ class Bishop(Piece):
 
 @dataclass(slots=True)
 class Rook(Piece):
-    '''Rook piece'''
+    '''
+    Rook piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    '''
 
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Rook, self).can_move(board, pos)
@@ -123,7 +197,25 @@ class Rook(Piece):
 
 @dataclass(slots=True)
 class Queen(Piece):
-    '''Queen piece'''
+    '''
+    Queen piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    '''
 
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Queen, self).can_move(board, pos)
@@ -154,7 +246,29 @@ class Queen(Piece):
 
 @dataclass(slots=True)
 class King(Piece):
-    '''King piece'''
+    '''
+    King piece
+    
+    Attributes
+    ----------
+    `pos: Position`
+        The position of the piece on the board
+    `color: Color`
+        The color of the piece
+    `legal_moves: list[Position]`
+        The legal moves of the piece
+    
+    Methods
+    -------
+    `can_move(board: Board, pos: Position) -> bool`
+        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+    `move(pos: Position) -> None`
+        Moves the piece to the given position.
+    `can_castle(board: Board, castle_type: str) -> bool`
+        Returns True if the king can castle in the given direction.
+    `castle(board: Board, castle_type: str) -> None`
+        Castles the king in the given direction.
+    '''
 
     def can_move(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)

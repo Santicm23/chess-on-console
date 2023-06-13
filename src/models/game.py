@@ -35,6 +35,25 @@ class Game(ABC):
         The fullmove number
     `pieces_from_fen: dict[str, Type[Piece]]`
         A dictionary that maps the FEN of a piece to the piece class
+    
+    Operators
+    ---------
+    `__str__(self) -> str`
+        Returns the string representation of the board
+    `__repr__(self) -> str`
+        Returns the FEN of the actual position
+    `__getitem__(self, pos: str) -> Optional[Piece]`
+        Returns the piece at the given position
+    `__setitem__(self, pos: str, piece: Piece) -> None`
+        Sets the piece at the given position
+    `__delitem__(self, pos: str) -> None`
+        Deletes the piece at the given position
+    `__contains__(self, piece: Piece) -> bool`
+        Returns True if the piece is on the board
+    `__iter__(self) -> Generator[Optional[Piece], None, None]`
+        Returns an iterator over the pieces on the board
+    `__len__(self) -> int`
+        Returns the number of pieces on the board
 
     Methods
     -------
