@@ -82,11 +82,8 @@ class StandardGame(Game):
 
         res: bool = False
 
-        for p in self.board:
-            if p is not None and p.color == enemy_color and p.can_move(self.board, self.board.get_king(color).pos):
-                res = True
-                break
-        
+        res = self.board.is_attacked(self.board.get_king(color).pos, enemy_color)
+
         self.change_turn()
         
         return res
@@ -120,6 +117,8 @@ class StandardGame(Game):
 
         self.board.move(piece, previous_pos)
         self.board[pos] = piece_captured
+        if piece_captured:
+            self.board.add_piece(piece_captured)
 
         return res
 
@@ -207,11 +206,12 @@ class StandardGame(Game):
                 pass
         
         if not en_passant_changed:
+            self.board.en_passant = None
             self.en_passant = '-'
         
         self.board.move(piece, pos)
         
-        if piece_captured is not None:
+        if piece_captured:
             self.halfmove_clock = 0
 
         if self.castling == '':

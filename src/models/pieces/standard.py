@@ -35,29 +35,29 @@ class Pawn(Piece):
         super(Pawn, self).can_move(board, pos)
         sqr = board[pos]
 
-        if self.color == Color.WHITE:
-            if sqr is None:
+        if sqr is None:
+            if self.color == Color.WHITE:
                 if board.en_passant == pos:
                     return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
                 
                 return self.pos + (0, 1) == pos or (
                     self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
                 )
-            elif sqr.color == Color.BLACK:
-                return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
-            
-        else:
-            if sqr is None:
+            else:
                 if board.en_passant == pos:
-                    return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+                    return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
                 
                 return self.pos + (0, -1) == pos or (
                     self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
                 )
-            elif sqr.color == Color.WHITE:
-                return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
-        
-        return False
+        else:
+            return self.can_capture(pos)
+    
+    def can_capture(self, pos: Position) -> bool:
+        if self.color == Color.WHITE:
+            return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+        else:
+            return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
 
     def promote(self, piece_type: Type[Piece]) -> None:
         self.__class__ = piece_type
@@ -295,7 +295,7 @@ class King(Piece):
         else:
             return False
         
-        if piece is None or not isinstance(piece, Rook):
+        if not isinstance(piece, Rook):
             return False
         
         rook = piece

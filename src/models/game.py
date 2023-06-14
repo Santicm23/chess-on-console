@@ -96,9 +96,13 @@ class Game(ABC):
 
     def __setitem__(self, pos: str, piece: Piece) -> None:
         self.board[pos] = piece
+        self.board.add_piece(piece)
 
     def __delitem__(self, pos: str) -> None:
+        piece = self.board[pos]
         del self.board[pos]
+        if piece:
+            self.board.remove_piece(piece)
 
     def __contains__(self, piece: Piece) -> bool:
         return piece in self.board
@@ -165,7 +169,7 @@ class Game(ABC):
             pos = Position(col, row)
         
         else:
-            pos_index: int # Index of the move position in the string
+            pos_index: int #? Index of the move's position in the string
             if '=' in move:
                 if move[0] in 'NBRQK':
                     raise ValueError('Invalid move')

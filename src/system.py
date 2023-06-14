@@ -106,7 +106,8 @@ class System:
         
         if res == 'Standard Chess':
             game = StandardGame()
-        elif res == 'Chess960':
+        elif res == 'Chess960': #TODO: Implement Chess960
+            print('Chess960 is not yet implemented')
             game = Chess960Game()
         else:
             raise NameError('Unknown game mode')

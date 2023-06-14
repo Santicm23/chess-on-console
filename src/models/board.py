@@ -6,7 +6,7 @@ from itertools import groupby
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position, SPECIAL_CHARS
 from .piece import Piece
-from .pieces.standard import King, Rook
+from .pieces.standard import King, Rook, Pawn
 
 
 @dataclass(slots=True)
@@ -50,6 +50,8 @@ class Board:
         Get the king of a color
     `move(self, piece: Piece, pos: Position) -> None`
         Move a piece to a position
+    `is_attacked(self, pos: Position, color: Color) -> bool`
+        Returns True if the position is attacked by a piece of the given color
     `undo(self) -> None`
         Undo the last move
     `redo(self) -> None`
@@ -171,6 +173,38 @@ class Board:
     def __len__(self) -> int:
         return sum(len(pieces) for pieces in self.pieces.values())
 
+    def add_piece(self, piece: Piece) -> None:
+        '''
+        Add a piece to the board
+
+        Parameters
+        ----------
+        `piece: Piece`
+            Piece to add
+        
+        Returns
+        -------
+        `None`
+        '''
+
+        self.pieces[piece.color].append(piece)
+    
+    def remove_piece(self, piece: Piece) -> None:
+        '''
+        Remove a piece from the board
+
+        Parameters
+        ----------
+        `piece: Piece`
+            Piece to remove
+        
+        Returns
+        -------
+        `None`
+        '''
+
+        self.pieces[piece.color].remove(piece)
+
     def get_king(self, color: Color) -> King:
         '''
         Get the king of a color
@@ -229,6 +263,33 @@ class Board:
             del self[piece.pos]
             piece.move(pos)
             self[pos] = piece
+            captured_piece = self[pos]
+            if captured_piece:
+                self.remove_piece(captured_piece)
+
+    def is_attacked(self, pos: Position, color: Color) -> bool:
+        '''
+        Check if a position is attacked by a color
+
+        Parameters
+        ----------
+        `pos: Position`
+            Position to check
+        `color: Color`
+            Color to check
+        
+        Returns
+        -------
+        `bool`
+            Whether the position is attacked by the color
+        '''
+        
+        for piece in self:
+            if piece and piece.color == color and (
+                piece.can_capture(pos) if isinstance(piece, Pawn) else piece.can_move(self, pos)
+            ):
+                return True
+        return False
 
     def undo(self) -> None: #! TODO: Implement
         '''
