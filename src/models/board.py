@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional, Generator, Type, Self
 from itertools import groupby
+from functools import reduce
 
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position, SPECIAL_CHARS
@@ -18,8 +19,8 @@ class Board:
     ----------
     `matrix: List[List[Optional[Piece]]]`
         Matrix of pieces on the board
-    `pieces: dict[Color, List[Piece]]`
-        Dictionary of pieces on the board
+    `kings: dict[Color, King]`
+        Dictionary of kings on the board
     
     Operators
     ---------
@@ -59,9 +60,7 @@ class Board:
     '''
 
     matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
-    pieces: dict[Color, List[Piece]] = field(init = False, default_factory = lambda: {
-        Color.WHITE: [], Color.BLACK: []
-    })
+    kings: dict[Color, King] = field(init = False, default_factory = dict)
     en_passant: Optional[Position] = field(init = False, default = None)
     
     @classmethod
@@ -119,9 +118,7 @@ class Board:
                 
                 row[i_col] = piece
 
-                index = 0 if isinstance(piece, pieces_from_fen['k']) else -1
-
-                self.pieces[piece.color].insert(index, piece)
+                self.kings.update({piece.color: piece}) if isinstance(piece, King) else -1
                 
                 i_col += 1
             
@@ -168,42 +165,10 @@ class Board:
                 yield piece
     
     def __contains__(self, piece: Piece) -> bool:
-        return piece in self.pieces[Color.WHITE] or piece in self.pieces[Color.BLACK]
+        return piece in reduce(lambda pieces, row: pieces + row, self.matrix, [])
 
     def __len__(self) -> int:
-        return sum(len(pieces) for pieces in self.pieces.values())
-
-    def add_piece(self, piece: Piece) -> None:
-        '''
-        Add a piece to the board
-
-        Parameters
-        ----------
-        `piece: Piece`
-            Piece to add
-        
-        Returns
-        -------
-        `None`
-        '''
-
-        self.pieces[piece.color].append(piece)
-    
-    def remove_piece(self, piece: Piece) -> None:
-        '''
-        Remove a piece from the board
-
-        Parameters
-        ----------
-        `piece: Piece`
-            Piece to remove
-        
-        Returns
-        -------
-        `None`
-        '''
-
-        self.pieces[piece.color].remove(piece)
+        return sum(reduce(lambda sum, element: sum + 1, filter(lambda p: p, pieces), 0) for pieces in self.matrix)
 
     def get_king(self, color: Color) -> King:
         '''
@@ -220,11 +185,7 @@ class Board:
             King of the color
         '''
 
-
-        king = self.pieces[color][0]
-        if isinstance(king, King):
-            return king
-        raise TypeError(f'Expected King, got {type(self.pieces[color][0])}')
+        return self.kings[color]
 
     def move(self, piece: Piece, pos: Position) -> None:
         '''
@@ -263,9 +224,6 @@ class Board:
             del self[piece.pos]
             piece.move(pos)
             self[pos] = piece
-            captured_piece = self[pos]
-            if captured_piece:
-                self.remove_piece(captured_piece)
 
     def is_attacked(self, pos: Position, color: Color) -> bool:
         '''

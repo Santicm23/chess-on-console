@@ -117,8 +117,6 @@ class StandardGame(Game):
 
         self.board.move(piece, previous_pos)
         self.board[pos] = piece_captured
-        if piece_captured:
-            self.board.add_piece(piece_captured)
 
         return res
 
