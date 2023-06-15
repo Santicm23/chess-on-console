@@ -139,11 +139,11 @@ class Bishop(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        cx = 1 if x > 0 else -1
-        cy = 1 if y > 0 else -1
+        step_x = 1 if x > 0 else -1
+        step_y = 1 if y > 0 else -1
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * cx, i * cy)] is not None:
+            if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
         
         sqr = board[pos]
@@ -186,14 +186,14 @@ class Rook(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        cx = 1 if x > 0 else (-1 if x < 0 else 0)
-        cy = 1 if y > 0 else (-1 if y < 0 else 0)
+        step_x = 1 if x > 0 else (-1 if x < 0 else 0)
+        step_y = 1 if y > 0 else (-1 if y < 0 else 0)
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * cx, i * cy)] is not None:
+            if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
         for i in range(1, abs(y)):
-            if board[self.pos + (i * cx, i * cy)] is not None:
+            if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
         
         sqr = board[pos]
@@ -235,14 +235,14 @@ class Queen(Piece):
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
-        cx = 1 if x > 0 else (-1 if x < 0 else 0)
-        cy = 1 if y > 0 else (-1 if y < 0 else 0)
+        step_x = 1 if x > 0 else (-1 if x < 0 else 0)
+        step_y = 1 if y > 0 else (-1 if y < 0 else 0)
 
         for i in range(1, abs(x)):
-            if board[self.pos + (i * cx, i * cy)] is not None:
+            if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
         for i in range(1, abs(y)):
-            if board[self.pos + (i * cx, i * cy)] is not None:
+            if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
         
         sqr = board[pos]
@@ -285,35 +285,54 @@ class King(Piece):
                 abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color)
             )
 
-    def can_castle(self, board: Board, castle_type: str) -> bool: #Todo: check if in check or passing through check and if he can castle in chess960 mode
-        rook: Rook
-        piece: Optional[Piece]
+    def can_castle(self, board: Board, castle_type: str) -> bool:
+
+        rook = self.get_rook(board, castle_type)
+        
+        if not rook:
+            return False
+
+        return self.check_castle_paths(rook, board, castle_type)
+    
+    def get_rook(self, board: Board, castle_type: str) -> Optional[Rook]:
+        pos_tmp = self.pos
+
+        step = (1, 0) if castle_type == 'O-O' else (-1, 0)
+
+        while board.is_valid(pos_tmp):
+            pos_tmp = pos_tmp + step
+            piece = board[pos_tmp]
+            if isinstance(piece, Rook):
+                return piece
+
+    def check_castle_paths(self, rook: Rook, board: Board, castle_type: str) -> bool:
+
         if castle_type == 'O-O':
-            piece = board[self.pos + (3, 0)]
-        elif castle_type == 'O-O-O':
-            piece = board[self.pos + (-4, 0)]
+            end_pos_k = Position('g', self.pos.row)
+            end_pos_r = end_pos_k - (1, 0)
         else:
-            return False
+            end_pos_k = Position('c', self.pos.row)
+            end_pos_r = end_pos_k + (1, 0)
         
-        if not isinstance(piece, Rook):
-            return False
-        
-        rook = piece
-        
-        x = self.pos.col
-        rook_x = rook.pos.col
+        step_k = (1, 0) if end_pos_k.col > self.pos.col else (-1, 0) if end_pos_k.col < self.pos.col else (0, 0)
+        step_r = (1, 0) if end_pos_r.col > rook.pos.col else (-1, 0) if end_pos_r.col < rook.pos.col else (0, 0)
 
-        x = col_to_int(x)
-        rook_x = col_to_int(rook_x)
+        pos_tmp_k = self.pos
+        pos_tmp_r = rook.pos
 
-        if rook_x < x:
-            for i in range(1, 4):
-                if board[self.pos - (i, 0)] is not None and not isinstance(board[self.pos - (i, 0)], King):
-                    return False
-        else:
-            for i in range(1, 3):
-                if board[self.pos + (i, 0)] is not None and not isinstance(board[self.pos + (i, 0)], King):
-                    return False
+        enemy_color = Color.WHITE if self.color == Color.BLACK else Color.BLACK
+
+        while pos_tmp_k != end_pos_k and board.is_valid(pos_tmp_k):
+            pos_tmp_k = pos_tmp_k + step_k
+            if (board[pos_tmp_k] is not None and not isinstance(board[pos_tmp_k], Rook)
+                ) or board.is_attacked(pos_tmp_k, enemy_color):
+                return False
+        
+        while pos_tmp_r != end_pos_r and board.is_valid(pos_tmp_r):
+            pos_tmp_r = pos_tmp_r + step_r
+            if board[pos_tmp_r] is not None and not isinstance(board[pos_tmp_r], King):
+                print('2')
+                return False
         
         return True
 

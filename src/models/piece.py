@@ -14,6 +14,9 @@ class Board(Protocol):
 
     def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 
+    def is_valid(self, pos: Position) -> bool:...
+
+    def is_attacked(self, pos: Position, color: Color) -> bool:...
 
 @dataclass(slots=True)
 class Piece(ABC):

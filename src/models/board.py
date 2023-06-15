@@ -170,6 +170,23 @@ class Board:
     def __len__(self) -> int:
         return sum(reduce(lambda sum, element: sum + 1, filter(lambda p: p, pieces), 0) for pieces in self.matrix)
 
+    def is_valid(self, pos: Position) -> bool:
+        '''
+        Check if a position is valid
+
+        Parameters
+        ----------
+        `pos: Position`
+            Position to check
+        
+        Returns
+        -------
+        `bool`
+            True if the position is valid
+        '''
+
+        return 1 <= pos.row <= 8 and 1 <= col_to_int(pos.col) <= 8
+
     def get_king(self, color: Color) -> King:
         '''
         Get the king of a color
