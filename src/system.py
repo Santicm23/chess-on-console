@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-from .helpers.console import clear, clear_playing, get_text_input, get_list_input
+from .helpers.console import clear, clear_playing, get_text_input, get_list_input, get_choices_input
 from .models.game import Game
 from .models.game_modes.standard import StandardGame
 from .models.game_modes.chess960 import Chess960Game
@@ -40,6 +40,8 @@ class System:
             '\tplay - start a new game\n'
             '\texit - exit the program\n'
         )
+
+        self.commands['options'] = self.options
 
         self.commands['exit'] = lambda: print('Exiting...\n')
 
@@ -114,6 +116,26 @@ class System:
         
         play_game(game, res)
 
+    def options(self) -> None:
+        '''
+        Displays the options configuration menu.
+        '''
+
+        clear()
+
+        back_option = 'back'
+        style_option = 'game design'
+        
+        res = get_list_input('Select an option', [back_option, style_option])
+
+        clear()
+
+        if res == back_option:
+            return
+        elif res == style_option:
+            get_choices_input('Select a style', ['default', 'custom'])
+
+
 def play_game(game: Game, game_mode: str) -> None:
     '''
     Displays the game and executes the user's commands.
@@ -146,21 +168,26 @@ def play_game(game: Game, game_mode: str) -> None:
             print(msg)
             msg = None
 
-        res = get_list_input('Select an option', ['move', '<--', '-->', 'exit'])
+        move_option = 'move'
+        undo_option = '<--'
+        redo_option = '-->'
+        exit_option = 'exit'
 
-        if res == 'move':
+        res = get_list_input('Select an option', [move_option, undo_option, redo_option, exit_option])
+
+        if res == move_option:
             try:
                 get_next_move(game)
             except ValueError as e:
                 msg = f'error: {e}\n'
 
-        elif res == '<--':
+        elif res == undo_option:
             game.undo()
 
-        elif res == '-->':
+        elif res == redo_option:
             game.redo()
                 
-        elif res == 'exit':
+        elif res == exit_option:
             game_over = True
             clear()
             

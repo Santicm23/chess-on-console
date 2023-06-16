@@ -7,30 +7,35 @@ This is a simple chess game for console. It is written in python 3.11.0 with the
 
 ## Installation
 
-Create a new Python environment, for example, using `venv`:
+Create a new Python environment, with [Poetry](https://python-poetry.org/)
+
+install poetry:
 
 ```
-python3 -m venv .venv
+pip install poetry
 ```
 
-then you can activate it, like this in Unix system (macOS and Linux):
+then download the project and go to the directory project:
 
 ```
-source .venv/bin/activate
+cd chess-console-game
 ```
 
-or like this in Windows:
+then install the dependencies:
 
 ```
-.venv\Scripts\activate
-```
-
-After that, install all the dependencies:
-```
-pip install -r requirements.txt
+poetry install
 ```
 
 ## Usage
+
+To run the game, start the virtual environment:
+
+```
+poetry shell
+```
+
+then run the main.py file:
 
 ```
 python main.py

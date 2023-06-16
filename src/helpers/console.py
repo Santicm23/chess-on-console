@@ -40,3 +40,16 @@ def get_list_input(question: str, choices: Iterable[str]) -> str:
 
     return answer['input']
 
+def get_choices_input(question: str, choices: Iterable[str]) -> str:
+    questions = [
+        inquirer.Checkbox('input',
+                message = question,
+                choices = choices,
+            ),
+        ]
+    answer = inquirer.prompt(questions)
+
+    assert answer is not None
+
+    return answer['input']
+
