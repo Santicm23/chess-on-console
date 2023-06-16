@@ -1,8 +1,8 @@
 
 import os
-from typing import Iterable
+from typing import Sequence
 
-import inquirer
+import questionary
 
 
 def clear() -> int:
@@ -16,40 +16,15 @@ def clear_playing(msg: str = 'chess') -> int:
     return status
 
 def get_text_input(question: str) -> str:
-    questions = [
-        inquirer.Text('input',
-                message = question,
-            ),
-        ]
-    answer = inquirer.prompt(questions)
+    return questionary.text(question).ask()
 
-    assert answer is not None
+def get_list_input(question: str, choices: Sequence[str]) -> str:
+    return questionary.select(question,
+            choices = choices,
+        ).ask()
 
-    return answer['input']
-
-def get_list_input(question: str, choices: Iterable[str]) -> str:
-    questions = [
-        inquirer.List('input',
-                message = question,
-                choices = choices,
-            ),
-        ]
-    answer = inquirer.prompt(questions)
-
-    assert answer is not None
-
-    return answer['input']
-
-def get_choices_input(question: str, choices: Iterable[str]) -> str:
-    questions = [
-        inquirer.Checkbox('input',
-                message = question,
-                choices = choices,
-            ),
-        ]
-    answer = inquirer.prompt(questions)
-
-    assert answer is not None
-
-    return answer['input']
+def get_choices_input(question: str, choices: Sequence[str]) -> str:
+    return questionary.checkbox(question,
+            choices = choices,
+        ).ask()
 
