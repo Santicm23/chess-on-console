@@ -1,6 +1,6 @@
 
 import os
-from typing import Sequence
+from typing import Sequence, Optional
 
 import questionary
 
@@ -23,8 +23,9 @@ def get_list_input(question: str, choices: Sequence[str]) -> str:
             choices = choices,
         ).ask()
 
-def get_choices_input(question: str, choices: Sequence[str]) -> str:
+def get_choices_input(question: str, choices: Sequence[str], default_choices: list[str] = []) -> list[str]:
+    list_choices = list(map(lambda choice: questionary.Choice(choice, checked = choice in default_choices), choices))
     return questionary.checkbox(question,
-            choices = choices,
+            choices = list_choices
         ).ask()
 

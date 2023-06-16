@@ -14,7 +14,7 @@ COLOR_MAP = {
     'b': Color.BLACK
 }
 
-SPECIAL_CHARS: dict[str, str] = {
+UNICODE_PIECES: dict[str, str] = {
     'p': '♙', 'P': '♟',
     'n': '♘', 'N': '♞',
     'b': '♗', 'B': '♝',

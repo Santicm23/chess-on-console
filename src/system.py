@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Callable, Optional
 
 from .helpers.console import clear, clear_playing, get_text_input, get_list_input, get_choices_input
+from .helpers import config
 from .models.game import Game
 from .models.game_modes.standard import StandardGame
 from .models.game_modes.chess960 import Chess960Game
@@ -60,8 +61,10 @@ class System:
         res: str = ''
 
         while res != 'exit':
+
+            keys: list[str] = list(self.commands.keys())
             
-            res = get_list_input('Select an option', self.commands.keys())
+            res = get_list_input('Select an option', keys)
             
             clear()
 
@@ -133,7 +136,20 @@ class System:
         if res == back_option:
             return
         elif res == style_option:
-            get_choices_input('Select a style', ['default', 'custom'])
+            unicode = 'unicode'
+            small_board = 'small board'
+
+            default_choices = []
+
+            if config.unicode_pieces:
+                default_choices.append(unicode)
+            if config.small_board:
+                default_choices.append(small_board)
+
+            options: list[str] = get_choices_input('Customize your board', [unicode, small_board], default_choices)
+
+            config.unicode_pieces = unicode in options
+            config.small_board = small_board in options
 
 
 def play_game(game: Game, game_mode: str) -> None:

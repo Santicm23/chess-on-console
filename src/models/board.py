@@ -1,11 +1,12 @@
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Generator, Type, Self
+from typing import List, Optional, Generator, Type, Self, Callable
 from itertools import groupby
 from functools import reduce
 
 from ..helpers.functions import col_to_int, int_to_col
-from ..helpers.constants import Color, Position, SPECIAL_CHARS
+from ..helpers.constants import Color, Position, UNICODE_PIECES
+from ..helpers import config
 from .piece import Piece
 from .pieces.standard import King, Rook, Pawn
 
@@ -125,12 +126,21 @@ class Board:
             i_row -= 1
 
     def __str__(self) -> str:
-        border: str = '  +---+---+---+---+---+---+---+---+\n'
-        rank_labels: str = '    a   b   c   d   e   f   g   h\n'
-        return border + border.join(
-                f'{8 - i} | ' + ' | '.join(SPECIAL_CHARS[str(piece)] if piece is not None else ' ' for piece in row) + ' |\n'
-                for i, row in enumerate(self.matrix)
-            ) + border + rank_labels
+        piece_repr: Callable[[Piece], str] = lambda piece: (
+            UNICODE_PIECES[str(piece)] if config.unicode_pieces else str(piece)
+        )
+        if config.small_board:
+            return '\n'.join(
+                ' '.join(piece_repr(piece) if piece else '.' for piece in row)
+                for row in self.matrix
+            ) + '\n'
+        else:
+            border: str = '  +---+---+---+---+---+---+---+---+\n'
+            rank_labels: str = '    a   b   c   d   e   f   g   h\n'
+            return border + border.join(
+                    f'{8 - i} | ' + ' | '.join(piece_repr(piece) if piece else ' ' for piece in row) + ' |\n'
+                    for i, row in enumerate(self.matrix)
+                ) + border + rank_labels
 
     def __repr__(self) -> str:
         return '/'.join(
