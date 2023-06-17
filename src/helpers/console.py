@@ -1,8 +1,9 @@
 
 import os
-from typing import Sequence, Optional
+from typing import Sequence
 
 import questionary
+Choice = questionary.Choice
 
 
 def clear() -> int:
@@ -24,7 +25,7 @@ def get_list_input(question: str, choices: Sequence[str]) -> str:
         ).ask()
 
 def get_choices_input(question: str, choices: Sequence[str], default_choices: list[str] = []) -> list[str]:
-    list_choices = list(map(lambda choice: questionary.Choice(choice, checked = choice in default_choices), choices))
+    list_choices: list[Choice] = list(map(lambda choice: questionary.Choice(choice, checked = choice in default_choices), choices))
     return questionary.checkbox(question,
             choices = list_choices
         ).ask()

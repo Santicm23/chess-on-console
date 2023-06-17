@@ -8,6 +8,7 @@ from .board import Board
 from .piece import Piece
 from .pieces.standard import King, Pawn
 from ..helpers.constants import Position, Color
+from ..helpers.custom_errors import InvalidMoveInputError, IllegalMoveError
 
 
 @dataclass(slots=True)
@@ -125,22 +126,26 @@ class Game(ABC):
         `move: str`
             The move to parse
         
-        Raises
-        ------
-        `ValueError`
-            If the move is invalid
-        
         Returns
         -------
         `tuple[Piece, Position, Optional[Piece], Optional[Type[Piece]]]`
             The piece, start position, captured piece and promotion piece
+        
+        Raises
+        ------
+        `InvalidMoveInputError`
+            If the move is not valid
+        `IllegalMoveError`
+            If the move is illegal
         '''
+
+        move_given = move
 
         if not re.match(
             r'^([NBRQK]?[a-h]?[1-8]?x?[a-h][1-8](=[NBRQ])?|O(-O){1,2})$',
             move
         ):
-            raise ValueError('Invalid move')
+            raise InvalidMoveInputError(move_given)
         
         piece: Optional[Piece] = None
         pos: Position
@@ -160,7 +165,7 @@ class Game(ABC):
             castle_char = castle_char.upper() if self.turn == 'w' else castle_char.lower()
 
             if not castle_char in self.castling or not piece.can_castle(self.board, move) or self.is_check():
-                raise ValueError('Invalid move')
+                raise IllegalMoveError(move_given)
             
             pos = Position(col, row)
         
@@ -168,12 +173,15 @@ class Game(ABC):
             pos_index: int #? Index of the move's position in the string
             if '=' in move:
                 if move[0] in 'NBRQK':
-                    raise ValueError('Invalid move')
+                    raise IllegalMoveError(move_given)
                 
                 promotion_piece = self.pieces_from_fen[move[-1].lower()]
                 pos = Position(move[-4], int(move[-3]))
 
                 pos_index = len(move) - 4
+
+                if pos.row != 8 and pos.row != 1:
+                    raise InvalidMoveInputError(move_given)
             else:
                 pos = Position(move[-2], int(move[-1]))
                 pos_index = len(move) - 2
@@ -205,12 +213,12 @@ class Game(ABC):
                 captured_piece = self[str(pos)]
             
             if 'x' in move and not captured_piece:
-                raise ValueError('Invalid move')
+                raise InvalidMoveInputError(move_given)
             elif 'x' not in move and captured_piece:
-                raise ValueError('Invalid move')
+                raise InvalidMoveInputError(move_given)
         
         if not piece:
-            raise ValueError('Invalid move')
+            raise IllegalMoveError(move_given)
         
         return piece, pos, captured_piece, promotion_piece
 

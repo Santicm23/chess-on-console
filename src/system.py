@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 from .helpers.console import clear, clear_playing, get_text_input, get_list_input, get_choices_input
 from .helpers import config
+from .helpers.custom_errors import IllegalMoveError, InvalidMoveInputError, InvalidFenError
 from .models.game import Game
 from .models.game_modes.standard import StandardGame
 from .models.game_modes.chess960 import Chess960Game
@@ -97,7 +98,7 @@ class System:
         ------
         `AssertionError`
             If the user's command is not in the `commands` dictionary.
-        `SyntaxError`
+        `ValueError`
             If the game mode is not recognized or if the user enters an unknown option in the play menu.
         '''
 
@@ -108,14 +109,18 @@ class System:
         clear_playing(res)
 
         game: Game
-        
-        if res == 'Standard Chess':
-            game = StandardGame()
-        elif res == 'Chess960': #TODO: Implement Chess960
-            print('Chess960 is not yet implemented')
-            game = Chess960Game()
-        else:
-            raise NameError('Unknown game mode')
+
+        try:
+            if res == 'Standard Chess':
+                game = StandardGame()
+            elif res == 'Chess960': #TODO: Implement Chess960
+                print('Chess960 is not yet implemented')
+                game = Chess960Game()
+            else:
+                raise ValueError('Unknown game mode')
+        except (ValueError | InvalidFenError) as e:
+            print(e)
+            return
         
         play_game(game, res)
 
@@ -194,7 +199,7 @@ def play_game(game: Game, game_mode: str) -> None:
         if res == move_option:
             try:
                 get_next_move(game)
-            except ValueError as e:
+            except (InvalidMoveInputError or IllegalMoveError) as e:
                 msg = f'error: {e}\n'
 
         elif res == undo_option:

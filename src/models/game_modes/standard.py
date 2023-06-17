@@ -1,9 +1,10 @@
 
 from ..game import Game
-from ...models.board import Board
-from ...models.piece import Piece
+from ..board import Board
+from ..piece import Piece
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
 from ...helpers.constants import Position, COLOR_MAP, Color
+from ...helpers.custom_errors import InvalidMoveInputError, InvalidFenError
 
 
 class StandardGame(Game):
@@ -60,11 +61,37 @@ class StandardGame(Game):
             'p': Pawn, 'n': Knight, 'b': Bishop, 'r': Rook, 'q': Queen, 'k': King
         })
 
-        fen, self.turn, self.castling, self.en_passant, halfmove_clock, fullmove_number = self.start_fen.split()
-        self.board = Board.from_fen(fen, self.pieces_from_fen)
-        self.halfmove_clock = int(halfmove_clock)
-        self.fullmove_number = int(fullmove_number)
-        self.update_legal_moves()
+        self.parse_fen(self.start_fen)
+    
+    def parse_fen(self, fen: str) -> None:
+        '''
+        Parses a FEN
+
+        Parameters
+        ----------
+        `fen: str`
+            The FEN to parse
+        
+        Raises
+        ------
+        `InvalidFenError`
+            If the FEN is invalid
+        '''
+
+        try:
+            fen, self.turn, self.castling, self.en_passant, halfmove_clock, fullmove_number = fen.split()
+            self.board = Board.from_fen(fen, self.pieces_from_fen)
+            self.halfmove_clock = int(halfmove_clock)
+            self.fullmove_number = int(fullmove_number)
+            self.update_legal_moves()
+
+            assert self.turn in 'wb'
+            assert self.castling in 'KQkq-'
+            assert self.en_passant in '-abcdefgh36'
+            assert 0 <= self.halfmove_clock <= 100
+            assert 0 <= self.fullmove_number
+        except (ValueError or AssertionError or InvalidFenError):
+            raise InvalidFenError(fen)
     
     def is_check(self) -> bool:
         '''
@@ -141,7 +168,7 @@ class StandardGame(Game):
                 except StopIteration:
                     break
 
-    def move(self, move: str) -> None: #TODO: check if king passes through check (castle)
+    def move(self, move: str) -> None:
         '''
         Moves a piece
 
@@ -177,7 +204,7 @@ class StandardGame(Game):
                     if promotion_type is not None:
                         piece.promote(promotion_type)
                     else:
-                        raise ValueError('Promotion type not specified')
+                        raise InvalidMoveInputError('Promotion type not specified')
                     
                 elif str(pos) == self.en_passant:
                     assert piece_captured
