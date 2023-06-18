@@ -1,9 +1,9 @@
 
-from ..game import Game
+from ..game import Game, GameOver
 from ..board import Board
 from ..piece import Piece
 from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
-from ...helpers.constants import Position, COLOR_MAP, Color
+from ...helpers.constants import Position, COLOR_MAP, Color, GameOverStatus
 from ...helpers.custom_errors import InvalidMoveInputError, InvalidFenError
 
 
@@ -88,9 +88,9 @@ class StandardGame(Game):
             assert self.turn in 'wb'
             assert self.castling in 'KQkq-'
             assert self.en_passant in '-abcdefgh36'
-            assert 0 <= self.halfmove_clock <= 100
+            assert 0 <= self.halfmove_clock <= 150
             assert 0 <= self.fullmove_number
-        except (ValueError or AssertionError or InvalidFenError):
+        except (ValueError, AssertionError, InvalidFenError):
             raise InvalidFenError(fen)
     
     def is_check(self) -> bool:
@@ -154,7 +154,7 @@ class StandardGame(Game):
 
         for p in self.board:
             tmp_pos = Position('a', 1)
-            if p is None:
+            if p is None or p.color != COLOR_MAP[self.turn]:
                 continue
 
             p.legal_moves.clear()
@@ -179,8 +179,12 @@ class StandardGame(Game):
         
         Raises
         ------
-        `ValueError`
-            If the move is not legal
+        `InvalidMoveInputError`
+            If the move is invalid
+        `IllegalMoveError`
+            If the move is illegal
+        `AssertionError`
+            If there is an error in parsing the move function BUG
         '''
         
         piece, pos, piece_captured, promotion_type = self.parse_move(move) 
@@ -248,3 +252,24 @@ class StandardGame(Game):
         
         self.update_legal_moves()
 
+        self.game_over() # check if the game is over
+
+    def game_over(self) -> None:
+        '''
+        Verifies if the game is over
+
+        Raises
+        ------
+        `GameOver`
+            If the game is over
+        '''
+
+        if not self.legal_moves:
+            if self.is_check():
+                self.change_turn()
+                raise GameOver(GameOverStatus.CHECKMATE, COLOR_MAP[self.turn])
+            else:
+                raise GameOver(GameOverStatus.STALEMATE)
+        if self.halfmove_clock >= 150:
+            raise GameOver(GameOverStatus.SEVENTYFIVE_MOVE_RULE)
+        

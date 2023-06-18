@@ -2,10 +2,10 @@
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-from .helpers.console import clear, clear_playing, get_text_input, get_list_input, get_choices_input
+from .helpers import console
 from .helpers import config
 from .helpers.custom_errors import IllegalMoveError, InvalidMoveInputError, InvalidFenError
-from .models.game import Game
+from .models.game import Game, GameOver
 from .models.game_modes.standard import StandardGame
 from .models.game_modes.chess960 import Chess960Game
 
@@ -57,7 +57,7 @@ class System:
             If the user's command is not in the `commands` dictionary.
         '''
 
-        clear()
+        console.clear()
 
         res: str = ''
 
@@ -65,9 +65,9 @@ class System:
 
             keys: list[str] = list(self.commands.keys())
             
-            res = get_list_input('Select an option', keys)
+            res = console.get_list_input('Select an option', keys)
             
-            clear()
+            console.clear()
 
             self.execute(res)
 
@@ -102,11 +102,11 @@ class System:
             If the game mode is not recognized or if the user enters an unknown option in the play menu.
         '''
 
-        clear_playing()
+        console.clear_playing()
         
-        res = get_list_input('Select a game mode', ['Standard Chess', 'Chess960'])
+        res = console.get_list_input('Select a game mode', ['Standard Chess', 'Chess960'])
 
-        clear_playing(res)
+        console.clear_playing(res)
 
         game: Game
 
@@ -118,7 +118,7 @@ class System:
                 game = Chess960Game()
             else:
                 raise ValueError('Unknown game mode')
-        except (ValueError | InvalidFenError) as e:
+        except (ValueError, InvalidFenError) as e:
             print(e)
             return
         
@@ -129,14 +129,14 @@ class System:
         Displays the options configuration menu.
         '''
 
-        clear()
+        console.clear()
 
         back_option = 'back'
         style_option = 'game design'
         
-        res = get_list_input('Select an option', [back_option, style_option])
+        res = console.get_list_input('Select an option', [back_option, style_option])
 
-        clear()
+        console.clear()
 
         if res == back_option:
             return
@@ -151,7 +151,8 @@ class System:
             if config.small_board:
                 default_choices.append(small_board)
 
-            options: list[str] = get_choices_input('Customize your board', [unicode, small_board], default_choices)
+            options: list[str] = console.get_choices_input(
+                'Customize your board', [unicode, small_board], default_choices)
 
             config.unicode_pieces = unicode in options
             config.small_board = small_board in options
@@ -174,16 +175,15 @@ def play_game(game: Game, game_mode: str) -> None:
         If the user enters an unknown option in the play menu.
     '''
 
-    game_over = False
+    playing = True
 
     msg: Optional[str] = None
 
-    while not game_over:
-        clear_playing(game_mode)
+    while playing:
+        console.clear_playing(game_mode)
 
-        print(game)
-        print(repr(game))
-        print(f'\nTurn: {game.turn} to move\n')
+        console.print_game(game)
+        console.print_turn(game.turn)
 
         if msg:
             print(msg)
@@ -194,13 +194,18 @@ def play_game(game: Game, game_mode: str) -> None:
         redo_option = '-->'
         exit_option = 'exit'
 
-        res = get_list_input('Select an option', [move_option, undo_option, redo_option, exit_option])
+        res = console.get_list_input('Select an option', [move_option, undo_option, redo_option, exit_option])
 
         if res == move_option:
             try:
                 get_next_move(game)
-            except (InvalidMoveInputError or IllegalMoveError) as e:
+            except (InvalidMoveInputError, IllegalMoveError) as e:
                 msg = f'error: {e}\n'
+            except GameOver as e:
+                console.print_game_over(game, e)
+                playing = False
+                console.clear()
+
 
         elif res == undo_option:
             game.undo()
@@ -209,8 +214,8 @@ def play_game(game: Game, game_mode: str) -> None:
             game.redo()
                 
         elif res == exit_option:
-            game_over = True
-            clear()
+            playing = False
+            console.clear()
             
         else:
             raise ValueError('Unknown option')
@@ -226,10 +231,13 @@ def get_next_move(game: Game) -> None:
     
     Raises
     ------
-    `ValueError`
+    `InvalidMoveInputError`
         If the user enters an invalid move.
+    `IllegalMoveError`
+        If the user enters an illegal move.
     '''
 
-    res = get_text_input('Enter a move')
+    res = console.get_text_input('Enter a move')
     
     game.move(res)
+

@@ -9,6 +9,17 @@ class Color(Enum):
     WHITE = auto(),
     BLACK = auto()
 
+
+class GameOverStatus(Enum):
+    CHECKMATE = auto(),
+    STALEMATE = auto(),
+    INSUFFICIENT_MATERIAL = auto(),
+    FIFTY_MOVE_RULE = auto(),
+    THREEFOLD_REPETITION = auto(),
+    FIVEFOLD_REPETITION = auto(),
+    SEVENTYFIVE_MOVE_RULE = auto()
+
+
 COLOR_MAP = {
     'w': Color.WHITE,
     'b': Color.BLACK

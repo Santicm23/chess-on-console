@@ -1,14 +1,16 @@
 
+import re
 from dataclasses import dataclass, field
 from typing import List, Optional, Generator, Type, Self, Callable
 from itertools import groupby
 from functools import reduce
 
+from .piece import Piece
+from .pieces.standard import King, Rook, Pawn
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position, UNICODE_PIECES
 from ..helpers import config
-from .piece import Piece
-from .pieces.standard import King, Rook, Pawn
+from ..helpers.custom_errors import InvalidFenError
 
 
 @dataclass(slots=True)
@@ -63,6 +65,7 @@ class Board:
     matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
     kings: dict[Color, King] = field(init = False, default_factory = dict)
     en_passant: Optional[Position] = field(init = False, default = None)
+    move_history: List[List[Optional[Position]]] = field(init=False, default_factory=list)
     
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
@@ -100,7 +103,15 @@ class Board:
         Returns
         -------
         `None`
+
+        Raises
+        ------
+        `InvalidFenError`
+            If the FEN string is invalid
         '''
+
+        # if not re.match(r'^([1-8PpNnBbRrQqKk/]+ ){7}[1-8PpNnBbRrQqKk]+$', fen):
+        #     raise InvalidFenError(fen)
 
         fen_list = fen.split('/')
         
@@ -180,6 +191,19 @@ class Board:
     def __len__(self) -> int:
         return sum(reduce(lambda sum, element: sum + 1, filter(lambda p: p, pieces), 0) for pieces in self.matrix)
 
+    @property
+    def pieces(self) -> list[Piece]:
+        '''
+        Get a list of all pieces on the board
+
+        Returns
+        -------
+        `list[Piece]`
+            List of all pieces on the board
+        '''
+
+        return reduce(lambda pieces, row: pieces + list(filter(None, row)), self.matrix, [])
+
     def is_valid(self, pos: Position) -> bool:
         '''
         Check if a position is valid
@@ -225,14 +249,14 @@ class Board:
         `pos: Position`
             Position to move the piece to
         
+        Returns
+        -------
+        `None`
+        
         Raises
         ------
         `ValueError`
             If cannot castle (The rook is not in the right place BUG)
-        
-        Returns
-        -------
-        `None`
         '''
 
         if isinstance(piece, King) and abs(piece.pos.diff(pos)[0]) == 2:
@@ -246,7 +270,7 @@ class Board:
                 self[castle_pos] = rook
                 self[pos] = piece
             else:
-                raise ValueError('Invalid castling')
+                raise RuntimeError('Invalid castling (this is not supposed to happen)')
         else:
             del self[piece.pos]
             piece.move(pos)
@@ -285,4 +309,18 @@ class Board:
         '''
         Redo the last move
         '''
+
+    def is_triple_repetition(self) -> bool:
+        if len(self.move_history) < 9:  # Se requieren al menos 9 movimientos para una triple repetición
+            return False
+
+        # Obtén los últimos 9 movimientos desde move_history
+        last_moves = self.move_history[-9:]
+
+        for i in range(0, 7, 3):
+            if last_moves[i:i+3] == last_moves[i+3:i+6] == last_moves[i+6:i+9]:
+                return True
+
+        return False
+
 

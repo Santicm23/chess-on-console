@@ -28,3 +28,6 @@ class Chess960Game(Game):
 
     def move(self, move: str) -> None:
         return super().move(move)
+    
+    def game_over(self) -> None:
+        return super().game_over()

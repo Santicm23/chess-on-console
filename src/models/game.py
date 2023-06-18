@@ -7,8 +7,21 @@ from typing import Optional, Type, Generator, Callable
 from .board import Board
 from .piece import Piece
 from .pieces.standard import King, Pawn
-from ..helpers.constants import Position, Color
+from ..helpers.constants import Position, Color, GameOverStatus, COLOR_MAP
 from ..helpers.custom_errors import InvalidMoveInputError, IllegalMoveError
+
+
+class GameOver(Exception):
+    '''
+    An exception that is raised when the game is over.
+    '''
+    
+    def __init__(self, game_over_status: GameOverStatus, winner: Optional[Color] = None) -> None:
+        self.winner = winner
+        self.game_over_status = game_over_status
+        self.score: str = '1-0' if self.winner == Color.WHITE else '0-1' if self.winner == Color.BLACK else '1/2-1/2'
+        self.msg = f'Game over: {self.score}, {self.game_over_status.name.lower()}'
+        super().__init__(self.msg)
 
 
 @dataclass(slots=True)
@@ -110,6 +123,16 @@ class Game(ABC):
     def __len__(self) -> int:
         return len(self.board)
     
+    @property
+    def legal_moves(self) -> list[str]:
+        '''
+        Returns a list of all the legal moves
+        '''
+
+        return [
+            str(move) for piece in self.board if piece and piece.color == COLOR_MAP[self.turn] for move in piece.legal_moves
+        ]
+
     def change_turn(self) -> None:
         '''
         Changes the turn
@@ -173,7 +196,7 @@ class Game(ABC):
             pos_index: int #? Index of the move's position in the string
             if '=' in move:
                 if move[0] in 'NBRQK':
-                    raise IllegalMoveError(move_given)
+                    raise InvalidMoveInputError(move_given)
                 
                 promotion_piece = self.pieces_from_fen[move[-1].lower()]
                 pos = Position(move[-4], int(move[-3]))
@@ -259,3 +282,13 @@ class Game(ABC):
             The move to make
         '''
 
+    @abstractmethod
+    def game_over(self) -> None:
+        '''
+        Verifies if the game is over
+        
+        Raises
+        ------
+        `GameOver`
+            If the game is over
+        '''
