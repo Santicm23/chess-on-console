@@ -155,9 +155,9 @@ class StandardGame(Game):
         Updates the legal moves of all the pieces
         '''
 
-        for p in self.board:
+        for p in self.board.pieces:
             tmp_pos = Position('a', 1)
-            if p is None or p.color != COLOR_MAP[self.turn]:
+            if p.color != COLOR_MAP[self.turn]:
                 continue
 
             p.legal_moves.clear()
@@ -207,14 +207,13 @@ class StandardGame(Game):
                     en_passant_changed = True
                 
                 elif pos.row == 1 or pos.row == 8:
-                    if promotion_type is not None:
-                        piece.promote(promotion_type)
-                    else:
+                    if not promotion_type:
                         raise InvalidMoveInputError('Promotion type not specified')
+                    piece.promote(promotion_type)
                     
                 elif str(pos) == self.en_passant:
-                    assert piece_captured
-
+                    if not piece_captured:
+                        raise InvalidMoveInputError('En passant capture not possible *BUG*') # BUG
                     del self.board[piece_captured.pos]
                 
             case King():
@@ -274,8 +273,10 @@ class StandardGame(Game):
                 raise GameOver(GameOverStatus.CHECKMATE, COLOR_MAP[self.turn])
             else:
                 raise GameOver(GameOverStatus.STALEMATE)
-        if self.halfmove_clock >= 150:
-            raise GameOver(GameOverStatus.SEVENTYFIVE_MOVE_RULE)
+        if self.halfmove_clock >= 100:
+            raise GameOver(GameOverStatus.FIFTY_MOVE_RULE)
         if self.board.is_triple_repetition():
             raise GameOver(GameOverStatus.THREEFOLD_REPETITION)
+        if self.board.is_insufficient_material():
+            raise GameOver(GameOverStatus.INSUFFICIENT_MATERIAL)
         

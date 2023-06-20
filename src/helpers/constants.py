@@ -16,8 +16,7 @@ class GameOverStatus(Enum):
     INSUFFICIENT_MATERIAL = auto(),
     FIFTY_MOVE_RULE = auto(),
     THREEFOLD_REPETITION = auto(),
-    FIVEFOLD_REPETITION = auto(),
-    SEVENTYFIVE_MOVE_RULE = auto()
+    FIVEFOLD_REPETITION = auto()
 
 
 COLOR_MAP = {

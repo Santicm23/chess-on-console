@@ -6,7 +6,7 @@ from itertools import groupby
 from functools import reduce
 
 from .piece import Piece
-from .pieces.standard import King, Rook, Pawn
+from .pieces.standard import King, Rook, Pawn, Queen, Knight, Bishop
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position, UNICODE_PIECES
 from ..helpers import config
@@ -324,4 +324,20 @@ class Board:
 
         return self.move_history.count(self.move_history[-1]) >= 3
 
+    def is_insufficient_material(self) -> bool:
+        '''
+        Check if there is insuficient material on the board
+
+        Returns
+        -------
+        `bool`
+            Whether there is insuficient material on the board
+        '''
+        pieces = self.pieces
+        white_pieces = list(filter(lambda p: p.color == Color.WHITE, pieces))
+        black_pieces = list(filter(lambda p: p.color == Color.BLACK, pieces))
+
+        return not any(isinstance(piece, (Pawn, Rook, Queen)) for piece in pieces) and (
+            len(white_pieces) <= 2 and len(black_pieces) <= 2
+        )
 
