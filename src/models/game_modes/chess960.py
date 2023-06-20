@@ -1,33 +1,36 @@
 
-from ..game import Game
-from ..pieces.standard import Pawn, Knight, Bishop, Rook, Queen, King
-from ...models.board import Board
+import random
+
+from .standard import StandardGame
 
 
-class Chess960Game(Game):
+class Chess960Game(StandardGame):
     '''Chess960 game'''
+
+    def __init__(self) -> None:
+        super().__init__(self.generate_random_fen())
     
-    def __init__(self, start_fen: str = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') -> None:
-        super().__init__(start_fen)
+    def generate_random_fen(self) -> str:
+        fen = ''
+        remain_pieces = ['r', 'n', 'b', 'q', 'b', 'n', 'r']
+        last_piece = ''
+        
+        while not last_piece == 'r':
+            last_piece = remain_pieces.pop(random.randint(0, len(remain_pieces)-1))
+            fen += last_piece
+        
+        remain_pieces.remove('r')
+        
+        remain_pieces.append('k')
+        
+        while not last_piece == 'k':
+            last_piece = remain_pieces.pop(random.randint(0, len(remain_pieces)-1))
+            fen += last_piece
+        
+        remain_pieces.append('r')
+        
+        while not len(remain_pieces) == 0:
+            fen += remain_pieces.pop(random.randint(0, len(remain_pieces)-1))
+        
+        return f'{fen}/pppppppp/8/8/8/8/PPPPPPPP/{fen.upper()} w KQkq - 0 1'
 
-    def __post_init__(self) -> None:
-        self.pieces_from_fen.update({
-            'p': Pawn, 'n': Knight, 'b': Bishop, 'r': Rook, 'q': Queen, 'k': King
-        })
-
-        fen, self.turn, self.castling, self.en_passant, halfmove_clock, fullmove_number = self.start_fen.split()
-        self.board = Board.from_fen(fen, self.pieces_from_fen)
-        self.halfmove_clock = int(halfmove_clock)
-        self.fullmove_number = int(fullmove_number)
-    
-    def is_check(self) -> bool:
-        ...
-
-    def update_legal_moves(self) -> None:
-        ...
-
-    def move(self, move: str) -> None:
-        return super().move(move)
-    
-    def game_over(self) -> None:
-        return super().game_over()
