@@ -89,9 +89,6 @@ class Game(ABC):
 
     start_fen: str = field(init = True)
     board: Board = field(init = False)
-    turn: str = field(init = False)
-    castling: str = field(init = False)
-    en_passant: str = field(init = False)
     halfmove_clock: int = field(init = False)
     fullmove_number: int = field(init = False)
     pieces_from_fen: dict[str, Type[Piece]] = field(init = False, default_factory = lambda: {'k': King})
@@ -123,6 +120,37 @@ class Game(ABC):
     def __len__(self) -> int:
         return len(self.board)
     
+    @property
+    def turn(self) -> str:
+        return self.board.turn
+    
+    @turn.setter
+    def turn(self, turn: str) -> None:
+        self.board.turn = turn
+
+    @property
+    def castling(self) -> str:
+        return self.board.castling
+    
+    @castling.setter
+    def castling(self, castling: str) -> None:
+        self.board.castling = castling
+
+    @property
+    def en_passant(self) -> str:
+        return str(self.board.en_passant) if self.board.en_passant else '-'
+    
+    @en_passant.setter
+    def en_passant(self, en_passant: str | Optional[Position]) -> None:
+        if isinstance(en_passant, str):
+            self.board.en_passant = Position(en_passant[0], int(en_passant[1])) if en_passant != '-' else None
+        else:
+            self.board.en_passant = en_passant
+
+    @property
+    def move_history(self) -> list[str]:
+        return self.board.move_history
+
     @property
     def legal_moves(self) -> list[str]:
         '''

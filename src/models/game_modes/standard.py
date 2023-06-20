@@ -79,8 +79,11 @@ class StandardGame(Game):
         '''
 
         try:
-            fen, self.turn, self.castling, self.en_passant, halfmove_clock, fullmove_number = fen.split()
+            fen, turn, castling, en_passant, halfmove_clock, fullmove_number = fen.split()
             self.board = Board.from_fen(fen, self.pieces_from_fen)
+            self.turn = turn
+            self.castling = castling
+            self.en_passant = en_passant
             self.halfmove_clock = int(halfmove_clock)
             self.fullmove_number = int(fullmove_number)
             self.update_legal_moves()
@@ -200,8 +203,7 @@ class StandardGame(Game):
                 if abs(pos.row - previous_pos.row) == 2 and (
                     str(self.board[pos + (1, 0)]) == chr_p or str(self.board[pos + (-1, 0)]) == chr_p
                 ):
-                    self.board.en_passant = pos + (0, -1) if piece.color == Color.WHITE else pos + (0, 1)
-                    self.en_passant = str(self.board.en_passant)
+                    self.en_passant = pos + (0, -1) if piece.color == Color.WHITE else pos + (0, 1)
                     en_passant_changed = True
                 
                 elif pos.row == 1 or pos.row == 8:
@@ -236,7 +238,7 @@ class StandardGame(Game):
         
         if not en_passant_changed:
             self.board.en_passant = None
-            self.en_passant = '-'
+            self.en_passant = None
         
         self.board.move(piece, pos)
         
@@ -251,6 +253,8 @@ class StandardGame(Game):
             self.fullmove_number += 1
         
         self.update_legal_moves()
+
+        self.move_history.append(repr(self.board) + self.turn + self.castling + self.en_passant)
 
         self.game_over() # check if the game is over
 
@@ -272,4 +276,6 @@ class StandardGame(Game):
                 raise GameOver(GameOverStatus.STALEMATE)
         if self.halfmove_clock >= 150:
             raise GameOver(GameOverStatus.SEVENTYFIVE_MOVE_RULE)
+        if self.board.is_triple_repetition():
+            raise GameOver(GameOverStatus.THREEFOLD_REPETITION)
         

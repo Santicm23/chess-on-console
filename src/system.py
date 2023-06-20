@@ -38,8 +38,9 @@ class System:
 
         self.commands['help'] = lambda: print(
             '    Commands: \n'
-            '\thelp - show this message\n'
             '\tplay - start a new game\n'
+            '\thelp - show this message\n'
+            '\toptions - customize your board\n'
             '\texit - exit the program\n'
         )
 

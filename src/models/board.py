@@ -64,8 +64,10 @@ class Board:
 
     matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
     kings: dict[Color, King] = field(init = False, default_factory = dict)
+    turn: str = field(init = False, default = 'w')
     en_passant: Optional[Position] = field(init = False, default = None)
-    move_history: List[List[Optional[Position]]] = field(init=False, default_factory=list)
+    castling: str = field(kw_only = True, default = 'KQkq')
+    move_history: List[str] = field(init=False, default_factory=list)
     
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
@@ -110,8 +112,8 @@ class Board:
             If the FEN string is invalid
         '''
 
-        # if not re.match(r'^([1-8PpNnBbRrQqKk/]+ ){7}[1-8PpNnBbRrQqKk]+$', fen):
-        #     raise InvalidFenError(fen)
+        if not re.match(r'^([1-8PpNnBbRrQqKk]{1,8}/){7}[1-8PpNnBbRrQqKk]{1,8}$', fen):
+            raise InvalidFenError(fen)
 
         fen_list = fen.split('/')
         
@@ -311,16 +313,15 @@ class Board:
         '''
 
     def is_triple_repetition(self) -> bool:
-        if len(self.move_history) < 9:  # Se requieren al menos 9 movimientos para una triple repetición
-            return False
+        '''
+        Check if the position has occured 3 times
 
-        # Obtén los últimos 9 movimientos desde move_history
-        last_moves = self.move_history[-9:]
+        Returns
+        -------
+        `bool`
+            Whether the position has occured 3 times
+        '''
 
-        for i in range(0, 7, 3):
-            if last_moves[i:i+3] == last_moves[i+3:i+6] == last_moves[i+6:i+9]:
-                return True
-
-        return False
+        return self.move_history.count(self.move_history[-1]) >= 3
 
 
