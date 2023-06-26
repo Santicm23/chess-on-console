@@ -24,7 +24,7 @@ class GameOver(Exception):
         super().__init__(self.msg)
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Game(ABC):
     '''
     The Game class is an abstract class that represents a game.
@@ -87,11 +87,11 @@ class Game(ABC):
         Moves a piece
     '''
 
-    start_fen: str = field(init = True)
-    board: Board = field(init = False)
-    halfmove_clock: int = field(init = False)
-    fullmove_number: int = field(init = False)
-    pieces_from_fen: dict[str, Type[Piece]] = field(init = False, default_factory = lambda: {'k': King})
+    start_fen: str = field(init= True)
+    board: Board = field(init= False)
+    halfmove_clock: int = field(init= False)
+    fullmove_number: int = field(init= False)
+    pieces_from_fen: dict[str, Type[Piece]] = field(init= False, default_factory= lambda: {'k': King})
 
     def __post_init__(self) -> None:
         pass

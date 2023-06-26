@@ -7,10 +7,10 @@ from typing import Optional, Protocol
 from ..helpers.constants import Color, Position
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Board(Protocol):
 
-    en_passant: Optional[Position] = field(init = False)
+    en_passant: Optional[Position] = field(init= False)
 
     def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 
@@ -18,7 +18,7 @@ class Board(Protocol):
 
     def is_attacked(self, pos: Position, color: Color) -> bool:...
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Piece(ABC):
     '''
     Abstract piece class
@@ -44,7 +44,7 @@ class Piece(ABC):
 
     color: Color
     pos: Position
-    legal_moves: list[Position] = field(init = False, default_factory = list)
+    legal_moves: list[Position] = field(init= False, default_factory= list)
 
     def __str__(self) -> str:
         return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()

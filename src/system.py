@@ -10,7 +10,7 @@ from .models.game_modes.standard import StandardGame
 from .models.game_modes.chess960 import Chess960Game
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class System:
     '''
     A class that represents the system of the program.
@@ -30,7 +30,7 @@ class System:
         Displays the game mode selection menu and starts the game.
     '''
 
-    commands: dict[str, Callable[[], None]] = field(kw_only = True, default_factory = dict)
+    commands: dict[str, Callable[[], None]] = field(kw_only= True, default_factory= dict)
 
     def __post_init__(self):
 

@@ -7,7 +7,7 @@ from ...helpers.constants import Color, Position
 from ...helpers.functions import col_to_int
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Pawn(Piece):
     '''
     Pawn piece
@@ -63,7 +63,7 @@ class Pawn(Piece):
         self.__class__ = piece_type
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Knight(Piece):
     '''
     Knight piece
@@ -108,7 +108,7 @@ class Knight(Piece):
         return False
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Bishop(Piece):
     '''
     Bishop piece
@@ -152,7 +152,7 @@ class Bishop(Piece):
 
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Rook(Piece):
     '''
     Rook piece
@@ -201,7 +201,7 @@ class Rook(Piece):
         return sqr is None or sqr.color != self.color
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Queen(Piece):
     '''
     Queen piece
@@ -250,7 +250,7 @@ class Queen(Piece):
         return sqr is None or sqr.color != self.color
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class King(Piece):
     '''
     King piece

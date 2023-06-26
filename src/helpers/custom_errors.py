@@ -1,7 +1,9 @@
 
 
 class IllegalMoveError(Exception):
-    """Raised when an illigal move is made."""
+    '''
+    Raised when an illigal move is made.
+    '''
     
     def __init__(self, move: str):
         self.move = move
@@ -9,7 +11,9 @@ class IllegalMoveError(Exception):
 
 
 class InvalidMoveInputError(Exception):
-    """Raised when an invalid move input is given."""
+    '''
+    Raised when an invalid move input is given.
+    '''
     
     def __init__(self, input: str):
         self.input = input
@@ -17,7 +21,9 @@ class InvalidMoveInputError(Exception):
 
 
 class InvalidFenError(Exception):
-    """Raised when an invalid FEN is given."""
+    '''
+    Raised when an invalid FEN is given.
+    '''
     
     def __init__(self, fen: str):
         self.fen = fen

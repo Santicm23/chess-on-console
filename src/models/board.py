@@ -6,14 +6,14 @@ from itertools import groupby
 from functools import reduce
 
 from .piece import Piece
-from .pieces.standard import King, Rook, Pawn, Queen, Knight, Bishop
+from .pieces.standard import King, Rook, Pawn, Queen
 from ..helpers.functions import col_to_int, int_to_col
 from ..helpers.constants import Color, Position, UNICODE_PIECES
 from ..helpers import config
 from ..helpers.custom_errors import InvalidFenError
 
 
-@dataclass(slots=True)
+@dataclass(slots= True)
 class Board:
     '''
     Chess board
@@ -62,12 +62,12 @@ class Board:
         Redo the last move
     '''
 
-    matrix: List[List[Optional[Piece]]] = field(init = False, default_factory = lambda: [[None] * 8 for _ in range(8)])
-    kings: dict[Color, King] = field(init = False, default_factory = dict)
-    turn: str = field(init = False, default = 'w')
-    en_passant: Optional[Position] = field(init = False, default = None)
-    castling: str = field(kw_only = True, default = 'KQkq')
-    move_history: List[str] = field(init=False, default_factory=list)
+    matrix: List[List[Optional[Piece]]] = field(init= False, default_factory= lambda: [[None] * 8 for _ in range(8)])
+    kings: dict[Color, King] = field(init= False, default_factory= dict)
+    turn: str = field(init= False, default= 'w')
+    en_passant: Optional[Position] = field(init= False, default= None)
+    castling: str = field(kw_only= True, default= 'KQkq')
+    move_history: List[str] = field(init= False, default_factory= list)
     
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
@@ -333,6 +333,7 @@ class Board:
         `bool`
             Whether there is insuficient material on the board
         '''
+        
         pieces = self.pieces
         white_pieces = list(filter(lambda p: p.color == Color.WHITE, pieces))
         black_pieces = list(filter(lambda p: p.color == Color.BLACK, pieces))

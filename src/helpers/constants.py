@@ -1,9 +1,10 @@
 
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Any, Self, Literal
+from typing import Self, Literal
 
 from ..helpers.functions import col_to_int, int_to_col
+
 
 class Color(Enum):
     WHITE = auto(),
@@ -51,7 +52,7 @@ class Position(tuple[str, int]):
     def __str__(self) -> str:
         return f'{self.col}{self.row}'
     
-    def __getitem__(self, index: Literal['row', 'col']) -> Any:
+    def __getitem__(self, index: Literal['row', 'col']) -> int | str:
         return getattr(self, index)
     
     def __eq__(self, other: Self) -> bool:
