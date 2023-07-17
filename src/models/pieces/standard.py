@@ -24,40 +24,41 @@ class Pawn(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     `promote(piece_type: Type[Piece]) -> None`
         Promotes the pawn to the given piece type.
     '''
-    
+
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Pawn, self).can_move(board, pos)
         sqr = board[pos]
 
-        if sqr is None:
-            if self.color == Color.WHITE:
-                if board.en_passant == pos:
-                    return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
-                
-                return self.pos + (0, 1) == pos or (
-                    self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
-                )
-            else:
-                if board.en_passant == pos:
-                    return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
-                
-                return self.pos + (0, -1) == pos or (
-                    self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
-                )
-        else:
+        if sqr is not None:
             return self.can_capture(pos)
-    
+
+        if self.color == Color.WHITE:
+            if board.en_passant == pos:
+                return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
+
+            return self.pos + (0, 1) == pos or (
+                self.pos + (0, 2) == pos and self.pos.row == 2 and board[self.pos + (0, 1)] is None
+            )
+
+        if board.en_passant == pos:
+            return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
+
+        return self.pos + (0, -1) == pos or (
+            self.pos + (0, -2) == pos and self.pos.row == 7 and board[self.pos + (0, -1)] is None
+        )
+
     def can_capture(self, pos: Position) -> bool:
         if self.color == Color.WHITE:
             return self.pos + (1, 1) == pos or self.pos + (-1, 1) == pos
-        else:
-            return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
+        # else:
+        return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
 
     def promote(self, piece_type: Type[Piece]) -> None:
         self.__class__ = piece_type
@@ -80,14 +81,15 @@ class Knight(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     '''
 
     def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
-    
+
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Knight, self).can_move(board, pos)
 
@@ -104,7 +106,7 @@ class Knight(Piece):
             return super(Knight, self).can_move(board, pos) and (
                     sqr is None or sqr.color != self.color
                 )
-        
+
         return False
 
 
@@ -125,7 +127,8 @@ class Bishop(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     '''
@@ -133,9 +136,9 @@ class Bishop(Piece):
     def can_move(self, board: Board, pos: Position) -> bool:
         super(Bishop, self).can_move(board, pos)
         x, y = pos.diff(self.pos)
-        
+
         return super(Bishop, self).can_move(board, pos) and abs(x) == abs(y) and self.check_path(board, pos)
-    
+
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
@@ -145,7 +148,7 @@ class Bishop(Piece):
         for i in range(1, abs(x)):
             if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
-        
+
         sqr = board[pos]
 
         return sqr is None or sqr.color != self.color
@@ -169,7 +172,8 @@ class Rook(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     '''
@@ -182,7 +186,7 @@ class Rook(Piece):
         return super(Rook, self).can_move(board, pos) and (
                 x == 0 or y == 0
             ) and self.check_path(board, pos)
-    
+
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
@@ -195,7 +199,7 @@ class Rook(Piece):
         for i in range(1, abs(y)):
             if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
-        
+
         sqr = board[pos]
 
         return sqr is None or sqr.color != self.color
@@ -218,7 +222,8 @@ class Queen(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     '''
@@ -231,7 +236,7 @@ class Queen(Piece):
         return super(Queen, self).can_move(board, pos) and (
                 x == 0 or y == 0 or abs(x) == abs(y)
             ) and self.check_path(board, pos)
-    
+
     def check_path(self, board: Board, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
@@ -244,7 +249,7 @@ class Queen(Piece):
         for i in range(1, abs(y)):
             if board[self.pos + (i * step_x, i * step_y)] is not None:
                 return False
-        
+
         sqr = board[pos]
 
         return sqr is None or sqr.color != self.color
@@ -267,7 +272,8 @@ class King(Piece):
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     `can_castle(board: Board, castle_type: str) -> bool`
@@ -288,12 +294,12 @@ class King(Piece):
     def can_castle(self, board: Board, castle_type: str) -> bool:
 
         rook = self.get_rook(board, castle_type)
-        
+
         if not rook:
             return False
 
         return self.check_castle_paths(rook, board, castle_type)
-    
+
     def get_rook(self, board: Board, castle_type: str) -> Optional[Rook]:
         pos_tmp = self.pos
 
@@ -313,7 +319,7 @@ class King(Piece):
         else:
             end_pos_k = Position('c', self.pos.row)
             end_pos_r = end_pos_k + (1, 0)
-        
+
         step_k = (1, 0) if end_pos_k.col > self.pos.col else (-1, 0) if end_pos_k.col < self.pos.col else (0, 0)
         step_r = (1, 0) if end_pos_r.col > rook.pos.col else (-1, 0) if end_pos_r.col < rook.pos.col else (0, 0)
 
@@ -349,4 +355,3 @@ class King(Piece):
         else:
             self.move(self.pos + (2, 0))
             rook.move(self.pos - (1, 0))
-

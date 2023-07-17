@@ -24,6 +24,14 @@ class Board:
         Matrix of pieces on the board
     `kings: dict[Color, King]`
         Dictionary of kings on the board
+    `turn: str`
+        Turn of the player
+    `en_passant: Optional[Position]`
+        Position of the en passant
+    `castling: str`
+        Castling availability
+    `move_history: List[str]`
+        List of moves made
     
     Operators
     ---------
@@ -60,15 +68,22 @@ class Board:
         Undo the last move
     `redo(self) -> None`
         Redo the last move
+    `is_triple_repetition(self) -> bool`
+        Returns True if the position has occured 3 times
+    `is_insufficient_material(self) -> bool`
+        Returns True if there is insuficient material on the board
     '''
 
-    matrix: List[List[Optional[Piece]]] = field(init= False, default_factory= lambda: [[None] * 8 for _ in range(8)])
+    matrix: List[List[Optional[Piece]]] = field(
+        init= False,
+        default_factory= lambda: [[None] * 8 for _ in range(8)]
+    )
     kings: dict[Color, King] = field(init= False, default_factory= dict)
     turn: str = field(init= False, default= 'w')
     en_passant: Optional[Position] = field(init= False, default= None)
     castling: str = field(kw_only= True, default= 'KQkq')
     move_history: List[str] = field(init= False, default_factory= list)
-    
+
     @classmethod
     def from_fen(cls, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> Self:
         '''
@@ -90,7 +105,7 @@ class Board:
         board = cls()
         board.load_fen(fen, pieces_from_fen)
         return board
-    
+
     def load_fen(self, fen: str, pieces_from_fen: dict[str, Type[Piece]]) -> None:
         '''
         Load a FEN string into the board
@@ -102,10 +117,6 @@ class Board:
         `pieces_from_fen: dict[str, Type[Piece]]`
             Dictionary of pieces to create from the FEN string
 
-        Returns
-        -------
-        `None`
-
         Raises
         ------
         `InvalidFenError`
@@ -116,7 +127,7 @@ class Board:
             raise InvalidFenError(fen)
 
         fen_list = fen.split('/')
-        
+
         i_row = 8
         for row, fen_row in zip(self.matrix, fen_list):
             i_col = 0
@@ -129,31 +140,36 @@ class Board:
                 color = Color.WHITE if char.isupper() else Color.BLACK
 
                 piece = pieces_from_fen[char.lower()](color, Position(int_to_col(i_col), i_row))
-                
+
                 row[i_col] = piece
 
-                self.kings.update({piece.color: piece}) if isinstance(piece, King) else -1
-                
+                if isinstance(piece, King):
+                    self.kings.update({piece.color: piece})
+
                 i_col += 1
-            
+
             i_row -= 1
 
     def __str__(self) -> str:
         piece_repr: Callable[[Piece], str] = lambda piece: (
             UNICODE_PIECES[str(piece)] if config.unicode_pieces else str(piece)
         )
+
         if config.small_board:
             return '\n'.join(
                 ' '.join(piece_repr(piece) if piece else '.' for piece in row)
                 for row in self.matrix
             ) + '\n'
-        else:
-            border: str = '  +---+---+---+---+---+---+---+---+\n'
-            rank_labels: str = '    a   b   c   d   e   f   g   h\n'
-            return border + border.join(
-                    f'{8 - i} | ' + ' | '.join(piece_repr(piece) if piece else ' ' for piece in row) + ' |\n'
-                    for i, row in enumerate(self.matrix)
-                ) + border + rank_labels
+
+        border: str = '  +---+---+---+---+---+---+---+---+\n'
+        rank_labels: str = '    a   b   c   d   e   f   g   h\n'
+
+        return border + border.join(
+                f'{8 - i} | ' + ' | '.join(
+                    piece_repr(piece) if piece else ' ' for piece in row
+                ) + ' |\n'
+                for i, row in enumerate(self.matrix)
+            ) + border + rank_labels
 
     def __repr__(self) -> str:
         return '/'.join(
@@ -186,12 +202,17 @@ class Board:
         for row in self.matrix:
             for piece in row:
                 yield piece
-    
+
     def __contains__(self, piece: Piece) -> bool:
         return piece in reduce(lambda pieces, row: pieces + row, self.matrix, [])
 
     def __len__(self) -> int:
-        return sum(reduce(lambda sum, element: sum + 1, filter(lambda p: p, pieces), 0) for pieces in self.matrix)
+        return sum(reduce(
+            lambda sum,
+            element: sum + 1,
+            filter(lambda p: p, pieces),
+            0
+        ) for pieces in self.matrix)
 
     @property
     def pieces(self) -> list[Piece]:
@@ -294,7 +315,7 @@ class Board:
         `bool`
             Whether the position is attacked by the color
         '''
-        
+
         for piece in self:
             if piece and piece.color == color and (
                 piece.can_capture(pos) if isinstance(piece, Pawn) else piece.can_move(self, pos)
@@ -333,7 +354,7 @@ class Board:
         `bool`
             Whether there is insuficient material on the board
         '''
-        
+
         pieces = self.pieces
         white_pieces = list(filter(lambda p: p.color == Color.WHITE, pieces))
         black_pieces = list(filter(lambda p: p.color == Color.BLACK, pieces))
@@ -341,4 +362,3 @@ class Board:
         return not any(isinstance(piece, (Pawn, Rook, Queen)) for piece in pieces) and (
             len(white_pieces) <= 2 and len(black_pieces) <= 2
         )
-

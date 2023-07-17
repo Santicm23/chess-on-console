@@ -65,9 +65,9 @@ class System:
         while res != 'exit':
 
             keys: list[str] = list(self.commands.keys())
-            
+
             res = console.get_list_input('Select an option', keys)
-            
+
             console.clear()
 
             self.execute(res)
@@ -88,7 +88,7 @@ class System:
         '''
 
         assert command in self.commands
-        
+
         self.commands[command]()
 
     def select_game_mode(self) -> None:
@@ -100,11 +100,12 @@ class System:
         `AssertionError`
             If the user's command is not in the `commands` dictionary.
         `ValueError`
-            If the game mode is not recognized or if the user enters an unknown option in the play menu.
+            If the game mode is not recognized or if the user enters an unknown option in
+            the play menu.
         '''
 
         console.clear_playing()
-        
+
         res = console.get_list_input('Select a game mode', ['Standard Chess', 'Chess960'])
 
         console.clear_playing(res)
@@ -119,10 +120,10 @@ class System:
                 game = Chess960Game()
             else:
                 raise ValueError('Unknown game mode')
-        except (ValueError, InvalidFenError) as e:
-            print(e)
+        except (ValueError, InvalidFenError) as error:
+            print(error)
             return
-        
+
         play_game(game, res)
 
     def options(self) -> None:
@@ -134,7 +135,7 @@ class System:
 
         back_option = 'back'
         style_option = 'game design'
-        
+
         res = console.get_list_input('Select an option', [back_option, style_option])
 
         console.clear()
@@ -195,15 +196,18 @@ def play_game(game: Game, game_mode: str) -> None:
         redo_option = '-->'
         exit_option = 'exit'
 
-        res = console.get_list_input('Select an option', [move_option, undo_option, redo_option, exit_option])
+        res = console.get_list_input(
+            'Select an option',
+            [move_option, undo_option, redo_option, exit_option]
+        )
 
         if res == move_option:
             try:
                 get_next_move(game)
-            except (InvalidMoveInputError, IllegalMoveError) as e:
-                msg = f'error: {e}\n'
-            except GameOver as e:
-                console.print_game_over(game, e)
+            except (InvalidMoveInputError, IllegalMoveError) as error:
+                msg = f'error: {error}\n'
+            except GameOver as error:
+                console.print_game_over(game, error)
                 playing = False
                 console.clear()
 
@@ -213,11 +217,11 @@ def play_game(game: Game, game_mode: str) -> None:
 
         elif res == redo_option:
             game.redo()
-                
+
         elif res == exit_option:
             playing = False
             console.clear()
-            
+
         else:
             raise ValueError('Unknown option')
 
@@ -239,6 +243,5 @@ def get_next_move(game: Game) -> None:
     '''
 
     res = console.get_text_input('Enter a move')
-    
-    game.move(res)
 
+    game.move(res)
