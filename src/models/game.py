@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
-from typing import Optional, Type, Generator, Callable
+from typing import Optional, Type, Generator, Callable, LiteralString
 
 from .board import Board
 from .piece import Piece
@@ -15,12 +15,18 @@ class GameOver(Exception):
     '''
     An exception that is raised when the game is over.
     '''
-    
+
     def __init__(self, game_over_status: GameOverStatus, winner: Optional[Color] = None) -> None:
-        self.winner = winner
-        self.game_over_status = game_over_status
-        self.score: str = '1-0' if self.winner == Color.WHITE else '0-1' if self.winner == Color.BLACK else '1/2-1/2'
-        self.msg = f'Game over: {self.score}, {self.game_over_status.name.lower()}'
+        self.winner: Optional[Color] = winner
+        self.game_over_status: GameOverStatus = game_over_status
+        self.score: str
+
+        if winner:
+            self.score = '1-0' if self.winner == Color.WHITE else '0-1'
+        else:
+            self.score = '1/2-1/2'
+
+        self.msg: LiteralString = f'Game over: {self.score}, {self.game_over_status.name.lower()}'
         super().__init__(self.msg)
 
 
@@ -91,7 +97,10 @@ class Game(ABC):
     board: Board = field(init= False)
     halfmove_clock: int = field(init= False)
     fullmove_number: int = field(init= False)
-    pieces_from_fen: dict[str, Type[Piece]] = field(init= False, default_factory= lambda: {'k': King})
+    pieces_from_fen: dict[str, Type[Piece]] = field(
+        init= False,
+        default_factory= lambda: {'k': King}
+    )
 
     def __post_init__(self) -> None:
         pass
@@ -113,42 +122,81 @@ class Game(ABC):
 
     def __contains__(self, piece: Piece) -> bool:
         return piece in self.board
-    
+
     def __iter__(self) -> Generator[Optional[Piece], None, None]:
         return iter(self.board)
-    
+
     def __len__(self) -> int:
         return len(self.board)
-    
+
     @property
     def turn(self) -> str:
+        '''
+        Returns the turn ('w' or 'b')
+
+        Returns
+        -------
+        `str`
+            The turn ('w' or 'b')
+        '''
+
         return self.board.turn
-    
+
     @turn.setter
     def turn(self, turn: str) -> None:
         self.board.turn = turn
 
     @property
     def castling(self) -> str:
+        '''
+        Returns the castling rights
+
+        Returns
+        -------
+        `str`
+            The castling rights
+        '''
+
         return self.board.castling
-    
+
     @castling.setter
     def castling(self, castling: str) -> None:
         self.board.castling = castling
 
     @property
     def en_passant(self) -> str:
+        '''
+        Returns the en passant square
+        
+        Returns
+        -------
+        `str`
+            The en passant square
+        '''
+
         return str(self.board.en_passant) if self.board.en_passant else '-'
-    
+
     @en_passant.setter
     def en_passant(self, en_passant: str | Optional[Position]) -> None:
         if isinstance(en_passant, str):
-            self.board.en_passant = Position(en_passant[0], int(en_passant[1])) if en_passant != '-' else None
+            self.board.en_passant = Position(
+                en_passant[0],
+                int(en_passant[1])
+            ) if en_passant != '-' else None
         else:
             self.board.en_passant = en_passant
 
     @property
     def move_history(self) -> list[str]:
+        '''
+        Returns a list of all the moves made
+        
+        Returns
+        -------
+        `list[str]`
+            A list of all the moves made
+        '''
+
         return self.board.move_history
 
     @property
@@ -158,7 +206,9 @@ class Game(ABC):
         '''
 
         return [
-            str(move) for piece in self.board if piece and piece.color == COLOR_MAP[self.turn] for move in piece.legal_moves
+            str(move)
+            for piece in self.board if piece and piece.color == COLOR_MAP[self.turn]
+            for move in piece.legal_moves
         ]
 
     def change_turn(self) -> None:
@@ -197,18 +247,18 @@ class Game(ABC):
             move
         ):
             raise InvalidMoveInputError(move_given)
-        
+
         piece: Optional[Piece] = None
         pos: Position
         captured_piece: Optional[Piece] = None
         promotion_piece: Optional[Type[Piece]] = None
 
         color = Color.WHITE if self.turn == 'w' else Color.BLACK
-        
+
         if move[0] == 'O':
             piece = self.board.get_king(color)
             castle_char: str
-            
+
             col = 'g' if move == 'O-O' else 'c'
             row = 1 if self.turn == 'w' else 8
 
@@ -217,15 +267,15 @@ class Game(ABC):
 
             if not castle_char in self.castling or not piece.can_castle(self.board, move) or self.is_check():
                 raise IllegalMoveError(move_given)
-            
+
             pos = Position(col, row)
-        
+
         else:
             pos_index: int #? Index of the move's position in the string
             if '=' in move:
                 if move[0] in 'NBRQK':
                     raise InvalidMoveInputError(move_given)
-                
+
                 promotion_piece = self.pieces_from_fen[move[-1].lower()]
                 pos = Position(move[-4], int(move[-3]))
 
@@ -236,13 +286,13 @@ class Game(ABC):
             else:
                 pos = Position(move[-2], int(move[-1]))
                 pos_index = len(move) - 2
-            
+
             if move[0] not in 'NBRQK':
                 move = 'P' + move
                 pos_index += 1
-            
+
             condicion: Callable[[Position], bool] = lambda _: True
-            
+
             if pos_index != 1:
                 if move[1] in 'abcdefgh':
                     condicion = lambda pos: pos.col == move[1]
@@ -250,27 +300,27 @@ class Game(ABC):
                         condicion = lambda pos: pos.col == move[1] and pos.row == int(move[2])
                 elif move[1] in '12345678':
                     condicion = lambda pos: pos.row == int(move[1])
-                    
+
             for p in self:
                 if p and p.color == color and str(p).upper() == move[0] and (
                     condicion(p.pos) and p.is_legal_move(pos)
                 ):
                     piece = p
                     break
-            
+
             if isinstance(piece, Pawn) and pos == self.en_passant:
                 captured_piece = self[pos.col + ('5' if self.turn == 'w' else '4')]
             else:
                 captured_piece = self[str(pos)]
-            
+
             if 'x' in move and not captured_piece:
                 raise InvalidMoveInputError(move_given)
-            elif 'x' not in move and captured_piece:
+            if 'x' not in move and captured_piece:
                 raise InvalidMoveInputError(move_given)
-        
+
         if not piece:
             raise IllegalMoveError(move_given)
-        
+
         return piece, pos, captured_piece, promotion_piece
 
     def undo(self) -> None:
@@ -279,7 +329,7 @@ class Game(ABC):
         '''
 
         self.board.undo()
-    
+
     def redo(self) -> None:
         '''
         Redoes the last undone move

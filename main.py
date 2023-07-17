@@ -3,6 +3,9 @@ from src.system import System
 
 
 def main() -> None:
+    '''
+    Main function of the program.
+    '''
 
     system = System()
 

@@ -9,6 +9,23 @@ from ..helpers.constants import Color, Position
 
 @dataclass(slots= True)
 class Board(Protocol):
+    '''
+    Board interface
+    
+    Attributes
+    ----------
+    `en_passant: Optional[Position]`
+        The position of the en passant square
+    
+    Methods
+    -------
+    `__getitem__(pos: str | Position) -> Optional[Piece]`
+        Returns the piece at the given position.
+    `is_valid(pos: Position) -> bool`
+        Returns True if the position is valid.
+    `is_attacked(pos: Position, color: Color) -> bool`
+        Returns True if the position is attacked by a piece of the given color.
+    '''
 
     en_passant: Optional[Position] = field(init= False)
 
@@ -47,8 +64,11 @@ class Piece(ABC):
     legal_moves: list[Position] = field(init= False, default_factory= list)
 
     def __str__(self) -> str:
-        return self.__class__.__name__[0].upper() if self.color == Color.WHITE else self.__class__.__name__[0].lower()
-    
+        if self.color == Color.WHITE:
+            return self.__class__.__name__[0].upper()
+        # else:
+        return self.__class__.__name__[0].lower()
+
     def is_legal_move(self, pos: str | Position) -> bool:
         '''
         Returns True if the piece can move to the given position.
@@ -67,7 +87,7 @@ class Piece(ABC):
         if isinstance(pos, str) and pos[1].isdigit():
             pos = Position(pos[0], int(pos[1]))
         return pos in self.legal_moves
-    
+
     def move(self, pos: Position) -> None:
         '''
         Moves the piece to the given position.
@@ -79,7 +99,7 @@ class Piece(ABC):
         '''
 
         self.pos = pos
-    
+
     @abstractmethod
     def can_move(self, board: Board, pos: Position) -> bool:
         '''
@@ -101,4 +121,3 @@ class Piece(ABC):
         if self.pos == pos:
             return False
         return True
-
