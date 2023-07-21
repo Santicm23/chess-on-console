@@ -1,3 +1,4 @@
+'''./src/models/piece.py'''
 
 from __future__ import annotations
 from dataclasses import dataclass, field
@@ -31,9 +32,9 @@ class Board(Protocol):
 
     def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 
-    def is_valid(self, pos: Position) -> bool:...
+    def is_valid(self, pos: Position) -> bool:...# pylint: disable=missing-function-docstring
 
-    def is_attacked(self, pos: Position, color: Color) -> bool:...
+    def is_attacked(self, pos: Position, color: Color) -> bool:...# pylint: disable=missing-function-docstring
 
 @dataclass(slots= True)
 class Piece(ABC):
@@ -56,7 +57,8 @@ class Piece(ABC):
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     `can_move(board: Board, pos: Position) -> bool`
-        Returns True if the piece can move to the given position (not taking into account if the move is legal).
+        Returns True if the piece can move to the given position (not taking into account
+        if the move is legal).
     '''
 
     color: Color
@@ -115,7 +117,8 @@ class Piece(ABC):
         Returns
         -------
         `bool`
-            True if the piece can move to the given position (not taking into account if the move is legal)
+            True if the piece can move to the given position (not taking into account
+            if the move is legal)
         '''
 
         if self.pos == pos:

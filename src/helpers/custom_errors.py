@@ -1,3 +1,4 @@
+'''./src/helpers/custom_errors.py'''
 
 
 class IllegalMoveError(Exception):

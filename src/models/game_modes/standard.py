@@ -1,3 +1,4 @@
+'''./src/models/game_modes/standard.py'''
 
 from ..game import Game, GameOver
 from ..board import Board

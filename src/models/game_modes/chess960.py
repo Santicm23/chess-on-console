@@ -1,3 +1,4 @@
+'''./src/models/game_modes/chess960.py'''
 
 import random
 

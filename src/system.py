@@ -1,3 +1,4 @@
+'''./src/system.py'''
 
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -115,8 +116,7 @@ class System:
         try:
             if res == 'Standard Chess':
                 game = StandardGame()
-            elif res == 'Chess960': #TODO: Implement Chess960
-                print('Chess960 is not yet implemented')
+            elif res == 'Chess960':
                 game = Chess960Game()
             else:
                 raise ValueError('Unknown game mode')

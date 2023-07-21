@@ -1,3 +1,4 @@
+'''./main.py'''
 
 from src.system import System
 

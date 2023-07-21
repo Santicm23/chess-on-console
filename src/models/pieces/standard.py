@@ -1,3 +1,4 @@
+'''./src/models/pieces/standard.py'''
 
 from dataclasses import dataclass
 from typing import Type, Optional
@@ -333,13 +334,13 @@ class King(Piece):
             if (board[pos_tmp_k] is not None and not isinstance(board[pos_tmp_k], Rook)
                 ) or board.is_attacked(pos_tmp_k, enemy_color):
                 return False
-        
+
         while pos_tmp_r != end_pos_r and board.is_valid(pos_tmp_r):
             pos_tmp_r = pos_tmp_r + step_r
             if board[pos_tmp_r] is not None and not isinstance(board[pos_tmp_r], King):
                 print('2')
                 return False
-        
+
         return True
 
     def castle(self, rook: Rook) -> None:
