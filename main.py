@@ -1,6 +1,6 @@
 '''./main.py'''
 
-from src.system import System
+from src import System
 
 
 def main() -> None:

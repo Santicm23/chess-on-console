@@ -7,14 +7,24 @@ from typing import Optional, Type, Generator, Callable, LiteralString
 
 from .board import Board
 from .piece import Piece
-from .pieces.standard import King, Pawn
-from ..helpers.constants import Position, Color, GameOverStatus, COLOR_MAP
-from ..helpers.custom_errors import InvalidMoveInputError, IllegalMoveError
+from .pieces import King, Pawn
+from ..helpers import Position, Color, GameOverStatus, COLOR_MAP, InvalidMoveInputError, IllegalMoveError
 
 
 class GameOver(Exception):
     '''
     An exception that is raised when the game is over.
+
+    Attributes
+    ----------
+    `winner: Optional[Color]`
+        The winner of the game
+    `game_over_status: GameOverStatus`
+        The reason why the game is over
+    `score: str`
+        The score of the game
+    `msg: LiteralString`
+        The message of the exception
     '''
 
     def __init__(self, game_over_status: GameOverStatus, winner: Optional[Color] = None) -> None:
@@ -133,12 +143,7 @@ class Game(ABC):
     @property
     def turn(self) -> str:
         '''
-        Returns the turn ('w' or 'b')
-
-        Returns
-        -------
-        `str`
-            The turn ('w' or 'b')
+        The turn ('w' or 'b')
         '''
 
         return self.board.turn
@@ -150,12 +155,7 @@ class Game(ABC):
     @property
     def castling(self) -> str:
         '''
-        Returns the castling rights
-
-        Returns
-        -------
-        `str`
-            The castling rights
+        The castling rights
         '''
 
         return self.board.castling
@@ -167,12 +167,7 @@ class Game(ABC):
     @property
     def en_passant(self) -> str:
         '''
-        Returns the en passant square
-        
-        Returns
-        -------
-        `str`
-            The en passant square
+        The en passant square
         '''
 
         return str(self.board.en_passant) if self.board.en_passant else '-'
@@ -190,12 +185,7 @@ class Game(ABC):
     @property
     def move_history(self) -> list[str]:
         '''
-        Returns a list of all the moves made
-        
-        Returns
-        -------
-        `list[str]`
-            A list of all the moves made
+        List of all the moves made
         '''
 
         return self.board.move_history
@@ -203,7 +193,7 @@ class Game(ABC):
     @property
     def legal_moves(self) -> list[str]:
         '''
-        Returns a list of all the legal moves
+        List of all the legal moves
         '''
 
         return [

@@ -2,16 +2,26 @@
 
 import random
 
-from .standard import StandardGame
+from . import StandardGame
 
 
 class Chess960Game(StandardGame):
     '''Chess960 game'''
 
     def __init__(self) -> None:
-        super().__init__(self.generate_random_fen())
+        super().__init__(self.__class__.generate_random_fen())
     
-    def generate_random_fen(self) -> str:
+    @staticmethod
+    def generate_random_fen() -> str:
+        '''
+        Generates a random FEN string for a Chess960 game.
+
+        Returns
+        -------
+        `str`
+            The generated FEN string.
+        '''
+
         fen = ''
         remain_pieces = ['r', 'n', 'b', 'q', 'b', 'n', 'r']
         last_piece = ''

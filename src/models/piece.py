@@ -5,11 +5,11 @@ from dataclasses import dataclass, field
 from abc import ABC, abstractmethod
 from typing import Optional, Protocol
 
-from ..helpers.constants import Color, Position
+from ..helpers import Color, Position
 
 
 @dataclass(slots= True)
-class Board(Protocol):
+class IBoard(Protocol):
     '''
     Board interface
     
@@ -18,10 +18,13 @@ class Board(Protocol):
     `en_passant: Optional[Position]`
         The position of the en passant square
     
-    Methods
-    -------
+    Operators
+    ---------
     `__getitem__(pos: str | Position) -> Optional[Piece]`
         Returns the piece at the given position.
+    
+    Methods
+    -------
     `is_valid(pos: Position) -> bool`
         Returns True if the position is valid.
     `is_attacked(pos: Position, color: Color) -> bool`
@@ -32,9 +35,9 @@ class Board(Protocol):
 
     def __getitem__(self, pos: str | Position) -> Optional[Piece]:...
 
-    def is_valid(self, pos: Position) -> bool:...# pylint: disable=missing-function-docstring
+    def is_valid(self, pos: Position) -> bool:...
 
-    def is_attacked(self, pos: Position, color: Color) -> bool:...# pylint: disable=missing-function-docstring
+    def is_attacked(self, pos: Position, color: Color) -> bool:...
 
 @dataclass(slots= True)
 class Piece(ABC):
@@ -49,6 +52,11 @@ class Piece(ABC):
         The position of the piece
     `legal_moves: list[Position]`
         The legal moves of the piece
+    
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
 
     Methods
     -------
@@ -103,7 +111,7 @@ class Piece(ABC):
         self.pos = pos
 
     @abstractmethod
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         '''
         Returns True if the piece can move to the given position.
         

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Self, Literal
 
-from ..helpers.functions import col_to_int, int_to_col
+from .functions import col_to_int, int_to_col
 
 
 class Color(Enum):
@@ -38,7 +38,38 @@ UNICODE_PIECES: dict[str, str] = {
 
 @dataclass
 class Position(tuple[str, int]):
-    '''Position on the board'''
+    '''
+    Position on the board
+
+    Attributes
+    ----------
+    `col: str`
+        The column of the position
+    `row: int`
+        The row of the position
+
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the position.
+    `__getitem__(index: Literal['row', 'col']) -> int | str`
+        Returns the row or column of the position.
+    `__eq__(other: Position) -> bool`
+        Returns True if the positions are equal.
+    `__add__(other: tuple[int, int]) -> Position`
+        Returns the position after adding the given tuple to the position.
+    `__sub__(other: tuple[int, int]) -> Position`
+        Returns the position after subtracting the given tuple from the position.
+    `__ne__(other: Position) -> bool`
+        Returns True if the positions are not equal.
+    `__next__() -> Position`
+        Returns the next position.
+    
+    Methods
+    -------
+    `diff(other: Position) -> tuple[int, int]`
+        Returns the difference between the positions.
+    '''
 
     col: str
     row: int
@@ -77,4 +108,3 @@ class Position(tuple[str, int]):
 
     def diff(self, other: Self) -> tuple[int, int]:
         return (col_to_int(self.col) - col_to_int(other.col), self.row - other.row)
-

@@ -2,5 +2,6 @@
     Package: models
 '''
 
-from . import game_modes
-from . import pieces
+from .piece import Piece
+from .game import Game, GameOver
+from .board import Board

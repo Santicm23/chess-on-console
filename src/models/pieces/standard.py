@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Type, Optional
 
-from ..piece import Piece, Board
+from ..piece import Piece, IBoard
 from ...helpers.constants import Color, Position
 from ...helpers.functions import col_to_int
 
@@ -12,7 +12,7 @@ from ...helpers.functions import col_to_int
 class Pawn(Piece):
     '''
     Pawn piece
-    
+
     Attributes
     ----------
     `pos: Position`
@@ -21,19 +21,26 @@ class Pawn(Piece):
         The color of the piece
     `legal_moves: list[Position]`
         The legal moves of the piece
-    
+
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
+
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
         Returns True if the piece can move to the given position (not taking into account
         if the move is legal).
+    `can_capture(pos: Position) -> bool`
+        Returns True if the piece can capture the piece at the given position.
     `move(pos: Position) -> None`
         Moves the piece to the given position.
     `promote(piece_type: Type[Piece]) -> None`
         Promotes the pawn to the given piece type.
     '''
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         super(Pawn, self).can_move(board, pos)
         sqr = board[pos]
 
@@ -62,6 +69,7 @@ class Pawn(Piece):
         return self.pos + (1, -1) == pos or self.pos + (-1, -1) == pos
 
     def promote(self, piece_type: Type[Piece]) -> None:
+        assert piece_type in [Knight, Bishop, Rook, Queen]
         self.__class__ = piece_type
 
 
@@ -78,7 +86,12 @@ class Knight(Piece):
         The color of the piece
     `legal_moves: list[Position]`
         The legal moves of the piece
-    
+
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
+
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
@@ -91,7 +104,7 @@ class Knight(Piece):
     def __str__(self) -> str:
         return 'N' if self.color == Color.WHITE else 'n'
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         super(Knight, self).can_move(board, pos)
 
         x, y = self.pos
@@ -115,7 +128,7 @@ class Knight(Piece):
 class Bishop(Piece):
     '''
     Bishop piece
-    
+
     Attributes
     ----------
     `pos: Position`
@@ -124,7 +137,12 @@ class Bishop(Piece):
         The color of the piece
     `legal_moves: list[Position]`
         The legal moves of the piece
-    
+
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
+
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
@@ -132,15 +150,17 @@ class Bishop(Piece):
         if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
+    `check_path(board: Board, pos: Position) -> bool`
+        Returns True if the path to the given position is clear.
     '''
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         super(Bishop, self).can_move(board, pos)
         x, y = pos.diff(self.pos)
 
         return super(Bishop, self).can_move(board, pos) and abs(x) == abs(y) and self.check_path(board, pos)
 
-    def check_path(self, board: Board, pos: Position) -> bool:
+    def check_path(self, board: IBoard, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
         step_x = 1 if x > 0 else -1
@@ -169,6 +189,11 @@ class Rook(Piece):
         The color of the piece
     `legal_moves: list[Position]`
         The legal moves of the piece
+
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
     
     Methods
     -------
@@ -177,9 +202,11 @@ class Rook(Piece):
         if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
+    `check_path(board: Board, pos: Position) -> bool`
+        Returns True if the path to the given position is clear.
     '''
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         super(Rook, self).can_move(board, pos)
 
         x, y = pos.diff(self.pos)
@@ -188,7 +215,7 @@ class Rook(Piece):
                 x == 0 or y == 0
             ) and self.check_path(board, pos)
 
-    def check_path(self, board: Board, pos: Position) -> bool:
+    def check_path(self, board: IBoard, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
         step_x = 1 if x > 0 else (-1 if x < 0 else 0)
@@ -220,6 +247,11 @@ class Queen(Piece):
     `legal_moves: list[Position]`
         The legal moves of the piece
     
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
+    
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
@@ -227,9 +259,11 @@ class Queen(Piece):
         if the move is legal).
     `move(pos: Position) -> None`
         Moves the piece to the given position.
+    `check_path(board: Board, pos: Position) -> bool`
+        Returns True if the path to the given position is clear.
     '''
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         super(Queen, self).can_move(board, pos)
 
         x, y = pos.diff(self.pos)
@@ -238,7 +272,7 @@ class Queen(Piece):
                 x == 0 or y == 0 or abs(x) == abs(y)
             ) and self.check_path(board, pos)
 
-    def check_path(self, board: Board, pos: Position) -> bool:
+    def check_path(self, board: IBoard, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
         step_x = 1 if x > 0 else (-1 if x < 0 else 0)
@@ -270,6 +304,11 @@ class King(Piece):
     `legal_moves: list[Position]`
         The legal moves of the piece
     
+    Operators
+    ---------
+    `__str__() -> str`
+        Returns the string representation of the piece.
+    
     Methods
     -------
     `can_move(board: Board, pos: Position) -> bool`
@@ -279,11 +318,15 @@ class King(Piece):
         Moves the piece to the given position.
     `can_castle(board: Board, castle_type: str) -> bool`
         Returns True if the king can castle in the given direction.
+    `get_rook(board: Board, castle_type: str) -> Optional[Rook]`
+        Returns the rook that the king will castle with.
+    `check_castle_paths(rook: Rook, board: Board, castle_type: str) -> bool`
+        Returns True if the paths for castling are clear.
     `castle(board: Board, castle_type: str) -> None`
         Castles the king in the given direction.
     '''
 
-    def can_move(self, board: Board, pos: Position) -> bool:
+    def can_move(self, board: IBoard, pos: Position) -> bool:
         x, y = pos.diff(self.pos)
 
         sqr = board[pos]
@@ -292,7 +335,7 @@ class King(Piece):
                 abs(x) <= 1 and abs(y) <= 1 and (sqr is None or sqr.color != self.color)
             )
 
-    def can_castle(self, board: Board, castle_type: str) -> bool:
+    def can_castle(self, board: IBoard, castle_type: str) -> bool:
 
         rook = self.get_rook(board, castle_type)
 
@@ -301,7 +344,7 @@ class King(Piece):
 
         return self.check_castle_paths(rook, board, castle_type)
 
-    def get_rook(self, board: Board, castle_type: str) -> Optional[Rook]:
+    def get_rook(self, board: IBoard, castle_type: str) -> Optional[Rook]:
         pos_tmp = self.pos
 
         step = (1, 0) if castle_type == 'O-O' else (-1, 0)
@@ -312,7 +355,7 @@ class King(Piece):
             if isinstance(piece, Rook):
                 return piece
 
-    def check_castle_paths(self, rook: Rook, board: Board, castle_type: str) -> bool:
+    def check_castle_paths(self, rook: Rook, board: IBoard, castle_type: str) -> bool:
 
         if castle_type == 'O-O':
             end_pos_k = Position('g', self.pos.row)

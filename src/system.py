@@ -3,12 +3,9 @@
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-from .helpers import console
-from .helpers import config
-from .helpers.custom_errors import IllegalMoveError, InvalidMoveInputError, InvalidFenError
+from .helpers import console, config, IllegalMoveError, InvalidMoveInputError, InvalidFenError
 from .models.game import Game, GameOver
-from .models.game_modes.standard import StandardGame
-from .models.game_modes.chess960 import Chess960Game
+from .models.game_modes import StandardGame, Chess960Game
 
 
 @dataclass(slots= True)

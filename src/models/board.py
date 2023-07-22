@@ -7,9 +7,8 @@ from itertools import groupby
 from functools import reduce
 
 from .piece import Piece
-from .pieces.standard import King, Rook, Pawn, Queen
-from ..helpers.functions import col_to_int, int_to_col
-from ..helpers.constants import Color, Position, UNICODE_PIECES
+from .pieces import King, Rook, Pawn, Queen
+from ..helpers import col_to_int, int_to_col, Color, Position, UNICODE_PIECES
 from ..helpers import config
 from ..helpers.custom_errors import InvalidFenError
 

@@ -5,7 +5,7 @@ from typing import Sequence, Optional
 
 import questionary
 
-from src.models.game import Game, GameOver
+from ..models.game import Game, GameOver
 
 
 Choice = questionary.Choice

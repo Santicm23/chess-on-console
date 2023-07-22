@@ -4,6 +4,11 @@
 class IllegalMoveError(Exception):
     '''
     Raised when an illigal move is made.
+
+    Attributes
+    ----------
+    `move: str`
+        The illegal move.
     '''
     
     def __init__(self, move: str):
@@ -14,6 +19,11 @@ class IllegalMoveError(Exception):
 class InvalidMoveInputError(Exception):
     '''
     Raised when an invalid move input is given.
+
+    Attributes
+    ----------
+    `input: str`
+        The invalid input.
     '''
     
     def __init__(self, input: str):
@@ -24,6 +34,11 @@ class InvalidMoveInputError(Exception):
 class InvalidFenError(Exception):
     '''
     Raised when an invalid FEN is given.
+
+    Attributes
+    ----------
+    `fen: str`
+        The invalid FEN.
     '''
     
     def __init__(self, fen: str):
