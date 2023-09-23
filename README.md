@@ -18,7 +18,7 @@ pip install poetry
 then download the project and go to the directory project:
 
 ```sh
-cd chess-console-game
+cd chess-on-console
 ```
 
 then install the virtual environment and the project dependencies:
